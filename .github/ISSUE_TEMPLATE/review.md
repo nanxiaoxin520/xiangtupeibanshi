@@ -1,22 +1,24 @@
 ---
-name: Content Review Request
-about: Request professional review of skill content
-title: '[REVIEW] '
-labels: review
+name: Security Review
+about: Report security concerns or suggest safety improvements
+title: '[SECURITY] '
+labels: security
 ---
 
-## Area of Review
+## Concern
+Describe the security or safety concern.
 
-- [ ] Crisis intervention
-- [ ] Mental health
-- [ ] Chinese culture
-- [ ] Other: ___
+## Type
+- [ ] Content safety (误导建议/危机响应)
+- [ ] Privacy (未授权数据收集)
+- [ ] Prompt injection / 越狱
+- [ ] Other
 
-## Your Credentials
+## Severity
+- [ ] Critical
+- [ ] High
+- [ ] Medium
+- [ ] Low
 
-## Documents to Review
-
-- [ ] SKILL.md
-- [ ] Specific guide
-
-## Specific Concerns
+## Note
+- **Do NOT** include real user conversation, personal privacy, or crisis case details

@@ -1,0 +1,52 @@
+name: Validate Skill
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Run validate_skill.py
+        run: |
+          python scripts/validate_skill.py
+        shell: bash
+
+      - name: Check for broken links
+        run: |
+          echo "Checking for broken links..."
+          python -c "
+          import re
+          from pathlib import Path
+          ROOT = Path('.')
+          errors = []
+          link_pattern = re.compile(r'\]\(([^)]+)\)')
+          for md in ROOT.rglob('*.md'):
+              if '.git' in str(md):
+                  continue
+              text = md.read_text(encoding='utf-8')
+              for raw_target in link_pattern.findall(text):
+                  target = raw_target.strip().split('#', 1)[0]
+                  if not target or re.match(r'^(?:https?://|mailto:)', target):
+                      continue
+                  resolved = (md.parent / target).resolve()
+                  if not resolved.exists():
+                      errors.append(f'Broken link in {md}: {raw_target}')
+          if errors:
+              for e in errors:
+                  print(e)
+              exit(1)
+          print('All links verified.')
+          "
+        shell: bash

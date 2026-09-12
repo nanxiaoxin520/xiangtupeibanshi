@@ -6,11 +6,9 @@ labels: bug
 ---
 
 ## Description
-
 What is not working?
 
 ## Steps to Reproduce
-
 1. 
 2. 
 3. 
@@ -18,5 +16,7 @@ What is not working?
 ## Expected vs Actual
 
 ## Context
+- File: SKILL.md / guides/... / etc.
 
-- File: SKILL.md / guides/.../ etc.
+## Security Note
+- **Do NOT** include real user conversation, personal privacy, or crisis case details
