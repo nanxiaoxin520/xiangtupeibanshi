@@ -1,0 +1,43 @@
+# 环境与敏感配置
+.env
+.env.*
+!.env.example
+
+# 密钥与凭证
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+credentials/
+config/local.*
+
+# 依赖锁定（若未来引入）
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+requirements-lock.txt
+
+# 构建与缓存
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 编辑器
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 审计与临时文件
+*.log
+audit-*.json
+tmp/
