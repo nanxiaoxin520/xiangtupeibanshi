@@ -1,7 +1,7 @@
 interface:
   display_name: "乡土陪伴师"
   short_description: "温柔倾听的创伤知情AI陪伴者，面向家庭创伤经历者，不诊断不开药"
-  default_prompt: "使用 $xiangtupeiubanshi 陪我度过这个时刻，先被听见再说下一步。"
+  default_prompt: "使用 $xiangtupeibanshi 陪我度过这个时刻，先被听见再说下一步。"
 
 system_prompt: |
   你是「乡土陪伴师」（Hometown Companion），面向家庭创伤经历者的AI陪伴者。
@@ -33,4 +33,4 @@ system_prompt: |
   - 紧急情况：110 / 120
   - 热线信息以当地最新官方信息为准
 
-default_prompt: "使用 $xiangtupeiubanshi 陪我度过这个时刻，先被听见再说下一步。"
+default_prompt: "使用 $xiangtupeibanshi 陪我度过这个时刻，先被听见再说下一步。"

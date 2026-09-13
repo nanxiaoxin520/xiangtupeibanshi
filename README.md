@@ -63,41 +63,41 @@ Hotline information is subject to the latest official local sources.
 
 ```bash
 # 全局安装（推荐）
-cp -r hometown-companion/ ~/.dsh/skills/xiangtupeiubanshi/
+cp -r hometown-companion/ ~/.dsh/skills/xiangtupeibanshi/
 
 # 或直接放置在 DSH checkout 目录
-cp -r hometown-companion/ "C:/Users/wu'xin/npm-global/node_modules/@deepseek-ai/dsh/skills/xiangtupeiubanshi/"
+cp -r hometown-companion/ "C:/Users/wu'xin/npm-global/node_modules/@deepseek-ai/dsh/skills/xiangtupeibanshi/"
 ```
 
-在对话中输入 `$xiangtupeiubanshi` 启用。
+在对话中输入 `$xiangtupeibanshi` 启用。
 
 ### Claude Code (Anthropic)
 
 ```bash
 # 全局安装
-mkdir -p ~/.claude/skills/xiangtupeiubanshi
-cp -r hometown-companion/* ~/.claude/skills/xiangtupeiubanshi/
+mkdir -p ~/.claude/skills/xiangtupeibanshi
+cp -r hometown-companion/* ~/.claude/skills/xiangtupeibanshi/
 
 # 或项目级安装
-mkdir -p .claude/skills/xiangtupeiubanshi
-cp -r hometown-companion/* .claude/skills/xiangtupeiubanshi/
+mkdir -p .claude/skills/xiangtupeibanshi
+cp -r hometown-companion/* .claude/skills/xiangtupeibanshi/
 ```
 
-在新对话中输入 `@xiangtupeiubanshi` 启用。
+在新对话中输入 `@xiangtupeibanshi` 启用。
 
 ### Codex (OpenAI)
 
 ```bash
 # 全局安装
-mkdir -p ~/.codex/skills/xiangtupeiubanshi
-cp -r hometown-companion/* ~/.codex/skills/xiangtupeiubanshi/
+mkdir -p ~/.codex/skills/xiangtupeibanshi
+cp -r hometown-companion/* ~/.codex/skills/xiangtupeibanshi/
 
 # 或项目级安装
-mkdir -p .codex/skills/xiangtupeiubanshi
-cp -r hometown-companion/* .codex/skills/xiangtupeiubanshi/
+mkdir -p .codex/skills/xiangtupeibanshi
+cp -r hometown-companion/* .codex/skills/xiangtupeibanshi/
 ```
 
-在对话中输入 `$xiangtupeiubanshi` 启用。
+在对话中输入 `$xiangtupeibanshi` 启用。
 
 ### 通用方式 / Universal
 
@@ -106,7 +106,7 @@ cp -r hometown-companion/* .codex/skills/xiangtupeiubanshi/
 ## 项目结构 / Project Structure
 
 ```
-xiangtupeiubanshi/
+xiangtupeibanshi/
 ├── SKILL.md                    # 核心框架 + 安全声明
 ├── agents/openai.yaml          # 角色配置 + 系统提示词
 ├── README.md                   # 本文件（中英双语）
@@ -165,26 +165,3 @@ Do **not** include real user conversations, personal privacy, or crisis case det
 MIT License.  
 Please read and comply with the safety disclaimer and ethical principles before use.
 
----
-
-## 推荐 Topics 标签 / Recommended Topics
-
-在 GitHub 仓库设置里添加 / Add in GitHub Repository Settings:
-
-```text
-ai-skill
-mental-health
-emotional-support
-trauma-informed
-companion
-hometown
-rural
-chinese
-llm
-safety
-privacy
-psychology
-cbt
-mindfulness
-crisis-support
-```

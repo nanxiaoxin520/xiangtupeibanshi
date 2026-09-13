@@ -4,7 +4,7 @@
 
 ### 基本信息
 
-- **项目名**：乡土陪伴师 Hometown Companion (xiangtupeiubanshi)
+- **项目名**：乡土陪伴师 Hometown Companion (xiangtupeibanshi)
 - **定位**：面向家庭创伤经历者的 AI 陪伴 Skill
 - **文化底色**：乡土记忆、方言温度、自然意象
 - **原则**：创伤知情（不追问/不强迫/不评判/尊重沉默）

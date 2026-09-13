@@ -1,5 +1,5 @@
 ---
-name: xiangtupeiubanshi
+name: xiangtupeibanshi
 description: **乡土陪伴师**——面向家庭创伤经历者的 AI 陪伴 Skill。以乡土记忆、方言温度、自然意象为底色，基于创伤知情原则。温柔倾听、情绪安放、危机识别与转介。非医疗工具，不替代专业心理咨询。
 ---
 

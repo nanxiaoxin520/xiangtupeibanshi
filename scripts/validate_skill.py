@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the xinli-zhushou skill."""
+"""Validate the xiangtupeibanshi skill."""
 
 from __future__ import annotations
 import re
@@ -50,7 +50,7 @@ def validate_frontmatter() -> None:
         ERRORS.append(f"frontmatter keys must be name, description; got {keys}")
     name_match = re.search(r"^name:\s*([^\n]+)$", frontmatter, re.MULTILINE)
     name = name_match.group(1).strip() if name_match else ""
-    if name != "xinli-zhushou" or not re.fullmatch(r"[a-z0-9-]{1,64}", name):
+    if name not in ("xinli-zhushou", "xiangtupeibanshi") or not re.fullmatch(r"[a-z0-9-]{1,64}", name):
         ERRORS.append(f"invalid skill name: {name!r}")
 
 
@@ -137,7 +137,7 @@ def main() -> int:
         for error in ERRORS:
             print(f"ERROR: {error}")
         return 1
-    print("xinli-zhushou validation passed")
+    print("xiangtupeibanshi validation passed")
     return 0
 
 
