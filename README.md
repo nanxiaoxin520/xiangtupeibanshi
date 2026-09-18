@@ -223,12 +223,6 @@ If you are at risk of self-harm, suicide, or violence, please contact local emer
 In mainland China, call the national psychological assistance hotline **12356**; for emergencies, dial **110 / 120**.
 Hotline information is authoritative as published in `references/热线与资源速查.md` (verified 2026-09-18).
 
-## Supplementary Data Note
-
-According to the *China Health Statistical Yearbook 2023* and the *China National Mental Health Development Report* published by the Institute of Psychology, Chinese Academy of Sciences, in 2022: among Chinese adolescents (aged 14–18), the detected rate of depression **risk** is 14.8%, of which 4.0% is severe depression risk. Suicide is the **second leading cause of death** among adolescents aged 15–19 (after unintentional injuries), with a suicide mortality rate of approximately 2.5–3.1 per 100,000 in this age group. In suicide deaths, academic pressure and family conflict together account for over 70% of contributing factors.
-
-> These are **population-level statistics**, presented to describe the overall situation of adolescent mental health. They are **not intended for individual assessment or diagnosis**. Figures may change as new reports are published; please verify against the latest primary sources when citing.
-
 ## Installation (By Platform)
 
 ### DeepSeek Harness (DSH)
