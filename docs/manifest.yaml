@@ -2,7 +2,7 @@
 # 由 scripts/validate_skill.py 校验：下方计数与仓库实际文件数不一致时 CI 失败。
 # 增删 guides / examples / references / documentation / _books 内容后，请同步更新本文件。
 
-version: 0.1.1
+version: 0.1.2
 skill_name: xiangtupeibanshi
 updated_at: 2026-09-18
 

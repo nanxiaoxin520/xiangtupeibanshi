@@ -625,8 +625,23 @@ class TestDIntegration(unittest.TestCase):
         self.assertIn("合计 0 个文件", r.stderr, "热线修正应已幂等（0 个待修）")
 
     def test_version_aligned(self):
-        self.assertEqual((ROOT / "VERSION").read_text(encoding="utf-8").strip(), "0.1.1")
-        self.assertIn("0.1.1", (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"))
+        """版本号须在三处保持一致：VERSION / CHANGELOG / docs/manifest.yaml。
+
+        断言「一致性不变量」而非硬编码版本号——否则每次发版都要改测试。
+        """
+        import re as _re
+        version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+        self.assertRegex(version, r"^\d+\.\d+\.\d+$", "VERSION 须为语义化版本 x.y.z")
+
+        changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        self.assertIn(f"## [{version}]", changelog, f"CHANGELOG 缺少版本条目 ## [{version}]")
+        self.assertTrue(changelog.lstrip().startswith("# "),
+                        "CHANGELOG 须以一级标题开头（标题不得被版本条目压到中部）")
+
+        manifest = (ROOT / "docs" / "manifest.yaml").read_text(encoding="utf-8")
+        m = _re.search(r"^version:\s*(\S+)", manifest, _re.MULTILINE)
+        self.assertIsNotNone(m, "docs/manifest.yaml 缺少 version 字段")
+        self.assertEqual(m.group(1), version, "manifest 版本与 VERSION 不一致")
 
     def test_pubmed_sources_archived(self):
         self.assertTrue((ROOT / "_books" / "_sources").is_dir())

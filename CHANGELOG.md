@@ -1,27 +1,59 @@
+# 更新日志
+
+本文件记录乡土陪伴师的版本变更。格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，
+版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
+
+---
+
+## [0.1.2] - 2026-09-18 - 资源链接修正
+
+### 修复
+
+- **昭阳医生**：`zhaoyangyisheng.com`（域名 NXDOMAIN，已失效）→ `https://www.zhaoyang.cn`（官方域名，实测 HTTP 200，证书有效至 2026-10-10）
+- **KnowYourself**：`knowyourself.cc`（HTTPS 证书已过期 145 天）→ `https://www.knowyourself.com.cn`（官方域名，实测 HTTP 200，证书有效至 2026-12-03），共 2 处
+- **移除「心理学空间网」**：`psybook.cn` 经公共 DNS 查询返回 NXDOMAIN，域名已失效且无替代入口
+- **保留「中国心理学会」** `cpsbeijing.org`：经核验站点完全正常（HTTP 200，证书有效至 2026-11-06，TLS 1.2/1.3 均支持）。海外 CI runner 报 `HandshakeFailure` 属跨境网络策略拦截，**非站点故障**，不应据此删除该权威资源
+
+### CI
+
+- `links` 作业增加 `--exclude`，排除经实测确认被跨境拦截的域名；排除项必须附带实测依据，不得为「让 CI 变绿」随意添加
+- 移除 `continue-on-error`，使外链检查恢复为真实阻断（实测其可正确捕获真实死链）
+
+### 文档
+
+- `references/热线与资源速查.md` §9 增加链接核验说明，记录核验方式、已知跨境拦截域名及其判定依据
+- 修正 `CHANGELOG.md` 结构：`# 更新日志` 标题此前被 0.1.1 条目压至文件中部，现已归位至文首
+
+---
+
 ## [0.1.1] - 2026-09-18 - 安全与一致性修复
 
 ### 安全修复
+
 - 移除含明文访问令牌的 `setup_github.sh`
 - 修正危机热线事实性错误：`12356-5` → `12356`；Lifeline Shanghai 标注英语服务与 10:00–22:00；补全座机 `800-810-1117`
 - `references/热线与资源速查.md` 确立为热线唯一权威源，附核验日期与复核周期
 
 ### 功能修复
+
 - 恢复 `SKILL.md` 行为内核：差序格局框架、3 维评估、5 步流程、危机转介、伦理边界、按议题路由表
 - 恢复渐进式披露路由层，使 19 篇 guides 与 9 篇 references 可被按需加载
 
 ### 一致性修复
+
 - 统一命名：清除 `xiangupeibanshi` / `xiangtupeiubanshi` / `hometown-companion` / `xinli-zhushou` 变体
 - 新增 `docs/manifest.yaml` 作为内容计数唯一事实源
 - 修正文档与实际不符的计数（guides / examples / references / books / documentation）
 - 修复 `references/README.md` 指向不存在文件、`examples/README.md` 重复行
 
 ### 质量修复
+
 - 清理全仓库「隔字加粗」格式污染（79 个文件）
 - `validate_skill.py` 扩展至 12 类检查（frontmatter / 结构 / 预算 / 断链 / 占位符 / 命名 / 加粗 / 热线 / 书籍卡 / 版本 / 清单）
 - CI 精简为单一校验入口，新增密钥扫描与外链检查
 - 移除未被引用的 `package.json`
 
-# 更新日志
+---
 
 ## [0.1.0] - 2025-09-12 - 初版发布
 
