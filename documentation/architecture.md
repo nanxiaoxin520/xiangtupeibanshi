@@ -3,11 +3,11 @@
 ## 核心结构
 
 ```
-xinli-zhushou/
-├── SKILL.md              # 行为内核（134 行硬上限）
+xiangtupeibanshi/
+├── SKILL.md              # 行为内核（200 行硬上限）
 ├── agents/openai.yaml    # 显示配置
 ├── guides/                # 陪伴指南（按议题）
-├── _books/                # 37 本书档案卡
+├── _books/                # 50 本书档案卡
 ├── documentation/         # 开发者文档
 ├── examples/              # 实际使用示例
 ├── scripts/               # 验证脚本

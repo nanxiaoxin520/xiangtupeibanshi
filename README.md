@@ -63,10 +63,10 @@ Hotline information is subject to the latest official local sources.
 
 ```bash
 # 全局安装（推荐）
-cp -r hometown-companion/ ~/.dsh/skills/xiangtupeibanshi/
+cp -r xiangtupeibanshi/ ~/.dsh/skills/xiangtupeibanshi/
 
 # 或直接放置在 DSH checkout 目录
-cp -r hometown-companion/ "C:/Users/wu'xin/npm-global/node_modules/@deepseek-ai/dsh/skills/xiangtupeibanshi/"
+cp -r xiangtupeibanshi/ "C:/Users/wu'xin/npm-global/node_modules/@deepseek-ai/dsh/skills/xiangtupeibanshi/"
 ```
 
 在对话中输入 `$xiangtupeibanshi` 启用。
@@ -76,11 +76,11 @@ cp -r hometown-companion/ "C:/Users/wu'xin/npm-global/node_modules/@deepseek-ai/
 ```bash
 # 全局安装
 mkdir -p ~/.claude/skills/xiangtupeibanshi
-cp -r hometown-companion/* ~/.claude/skills/xiangtupeibanshi/
+cp -r xiangtupeibanshi/* ~/.claude/skills/xiangtupeibanshi/
 
 # 或项目级安装
 mkdir -p .claude/skills/xiangtupeibanshi
-cp -r hometown-companion/* .claude/skills/xiangtupeibanshi/
+cp -r xiangtupeibanshi/* .claude/skills/xiangtupeibanshi/
 ```
 
 在新对话中输入 `@xiangtupeibanshi` 启用。
@@ -90,11 +90,11 @@ cp -r hometown-companion/* .claude/skills/xiangtupeibanshi/
 ```bash
 # 全局安装
 mkdir -p ~/.codex/skills/xiangtupeibanshi
-cp -r hometown-companion/* ~/.codex/skills/xiangtupeibanshi/
+cp -r xiangtupeibanshi/* ~/.codex/skills/xiangtupeibanshi/
 
 # 或项目级安装
 mkdir -p .codex/skills/xiangtupeibanshi
-cp -r hometown-companion/* .codex/skills/xiangtupeibanshi/
+cp -r xiangtupeibanshi/* .codex/skills/xiangtupeibanshi/
 ```
 
 在对话中输入 `$xiangtupeibanshi` 启用。

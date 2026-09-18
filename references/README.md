@@ -1,6 +1,6 @@
 # References 索引
 
-> **本目录**为 xiangtupeiubanshi skill 的**参考文档**。  
+> **本目录**为 xiangtupeibanshi skill 的**参考文档**。  
 > 主要存放按需加载的**详细参考材料**（避免 SKILL.md 过载）。
 
 ## 当前文档
@@ -14,6 +14,7 @@
 | 治疗流派速查.md | CBT/ACT/正念/DBT/系统/精神动力 | 选方法时 |
 | 关系伤害分析SOP.md | 关系伤害分析标准化流程 | 关系议题时 |
 | 验证脚本说明.md | validate_skill.py 使用说明 | 验证时 |
+| platform-install.md | 各 AI 平台安装步骤 | 安装时 |
 
 ## 设计原则
 

@@ -1,10 +1,10 @@
 # 知识库治理
 
-## 37 本书档案卡
+## 50 本书档案卡
 
 在 `_books/` 目录——保留自 v1.0（zhongguo-xinli-zhiliao）。
 
-## 10 个 guides
+## 19 篇 guides
 
 在 `guides/` 目录——v2.0 新设计。
 

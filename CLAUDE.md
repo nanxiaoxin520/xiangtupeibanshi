@@ -1,15 +1,15 @@
 # 开发者指南
 
-> **本**文**档**说**明**了**如**何**在** `xinli-zhushou` **框**架**中**开**发**、**测**试**、**和**优**化**。
+> 本文档说明了如何在 `xiangtupeibanshi` 框架中开发、测试、和优化。
 
 ## 1. 结构概览
 
 ```
-xinli-zhushou/
+xiangtupeibanshi/
 ├── SKILL.md              # 核心框架（≤200行 / 8000字）
 ├── agents/
 │   └── openai.yaml       # 角色配置（乡伴）
-├── guides/               # 操作指南（18个）
+├── guides/               # 操作指南（19篇）
 │   ├── 00-欢迎与定位.md
 │   ├── 01-第一次对话.md
 │   ├── 10-情绪识别与命名.md
@@ -28,13 +28,13 @@ xinli-zhushou/
 │   ├── 60-中国心理学会7大原则.md
 │   ├── 70-关系伤害分析.md
 │   └── 71-关系冲突5场景.md
-├── examples/             # 实际对话例子（5个）
+├── examples/             # 实际对话例子（4个）
 │   ├── 01-情绪低落.md
 │   ├── 02-关系探索.md
 │   ├── 03-危机时刻.md
 │   ├── 04-关系伤害.md
 │   └── README.md
-├── references/           # 参考文档（7个）
+├── references/           # 参考文档（9篇）
 │   ├── 评估量表速查.md
 │   ├── 热线与资源速查.md
 │   ├── 书籍档案索引.md
@@ -45,11 +45,11 @@ xinli-zhushou/
 │   └── README.md
 ├── scripts/              # 工具脚本
 │   └── validate_skill.py # 自动验证脚本
-├── _books/               # 书籍档案卡（52个）
+├── _books/               # 书籍档案卡（50张）
 │   ├── README.md
 │   ├── 《自卑与超越》.md
 │   ├── 《蛤蟆先生去看心理医生》.md
-│   └── ...（共51本）
+│   └── ...（共50张）
 ├── documentation/        # 内部文档
 │   ├── relationship-harm-sop.md
 │   └── README.md
@@ -107,7 +107,7 @@ xinli-zhushou/
 python scripts/validate_skill.py
 
 # 预期输出：
-# xinli-zhushou validation passed
+# xiangtupeibanshi validation passed
 ```
 
 ### 验证内容
@@ -116,7 +116,7 @@ python scripts/validate_skill.py
 - `agents/openai.yaml` 存在
 - `guides/` 所有必需文件存在
 - `references/` 存在
-- 无 `g-*-****-**` 残留（白名单：CHANGELOG.md, CONTRIBUTING.md, README.md）
+- 无历史残留术语（白名单：CHANGELOG.md, CONTRIBUTING.md, README.md）
 - 无断链（本地链接指向存在的文件）
 - 无 `[PLACEHOLDER]` 占位符
 - 所有 `_books/` 档案卡有正确的 Front Matter
@@ -188,6 +188,6 @@ ls guides/*.md
 |---|---|
 | 验证失败（文件缺失） | `ls guides/*.md` 确认所有必需文件存在 |
 | 验证失败（SKILL.md 行数） | `cat -n SKILL.md | tail -10` 查看是否超过 200 行 |
-| 验证失败（g-*-****-** 残留） | `grep -r "g-*-****-**\|g-***-****-" *.md` |
+| 验证失败（命名变体/历史残留） | `python scripts/validate_skill.py` 查看具体错误 |
 | 验证失败（断链） | `python scripts/validate_skill.py` 查看具体错误 |
 | 书籍档案无 Front matter | 读取文件首 10 行检查 `---` 开始 |

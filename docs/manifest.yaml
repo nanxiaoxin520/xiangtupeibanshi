@@ -1,0 +1,23 @@
+# 内容清单唯一事实源（Single Source of Truth）
+# 由 scripts/validate_skill.py 校验：下方计数与仓库实际文件数不一致时 CI 失败。
+# 增删 guides / examples / references / documentation / _books 内容后，请同步更新本文件。
+
+version: 0.1.1
+skill_name: xiangtupeibanshi
+updated_at: 2026-09-18
+
+# ---- 数量（须与实际文件系统一致）----
+guides: 19
+examples: 4
+references: 9
+documentation: 5
+books: 50
+
+# ---- 内核预算（validate_skill.py 读取）----
+skill_max_lines: 200
+skill_max_characters: 8000
+skill_max_approx_tokens: 7000
+
+# ---- 安全关键信息的复核周期 ----
+hotline_verified_at: 2026-09-18
+hotline_review_cycle_days: 180

@@ -1,3 +1,26 @@
+## [0.1.1] - 2026-09-18 - 安全与一致性修复
+
+### 安全修复
+- 移除含明文访问令牌的 `setup_github.sh`
+- 修正危机热线事实性错误：`12356-5` → `12356`；Lifeline Shanghai 标注英语服务与 10:00–22:00；补全座机 `800-810-1117`
+- `references/热线与资源速查.md` 确立为热线唯一权威源，附核验日期与复核周期
+
+### 功能修复
+- 恢复 `SKILL.md` 行为内核：差序格局框架、3 维评估、5 步流程、危机转介、伦理边界、按议题路由表
+- 恢复渐进式披露路由层，使 19 篇 guides 与 9 篇 references 可被按需加载
+
+### 一致性修复
+- 统一命名：清除 `xiangupeibanshi` / `xiangtupeiubanshi` / `hometown-companion` / `xinli-zhushou` 变体
+- 新增 `docs/manifest.yaml` 作为内容计数唯一事实源
+- 修正文档与实际不符的计数（guides / examples / references / books / documentation）
+- 修复 `references/README.md` 指向不存在文件、`examples/README.md` 重复行
+
+### 质量修复
+- 清理全仓库「隔字加粗」格式污染（79 个文件）
+- `validate_skill.py` 扩展至 12 类检查（frontmatter / 结构 / 预算 / 断链 / 占位符 / 命名 / 加粗 / 热线 / 书籍卡 / 版本 / 清单）
+- CI 精简为单一校验入口，新增密钥扫描与外链检查
+- 移除未被引用的 `package.json`
+
 # 更新日志
 
 ## [0.1.0] - 2025-09-12 - 初版发布

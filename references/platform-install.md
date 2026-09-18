@@ -29,7 +29,7 @@ C:\Users\wu'xin\npm-global\node_modules\@deepseek-ai\dsh\
 # DSH checkout: C:\Users\wu'xin\npm-global\node_modules\@deepseek-ai\dsh
 
 # 2. 复制 Skill 到 DSH skills 目录
-cp -r hometown-companion/ "C:/Users/wu'xin/npm-global/node_modules/@deepseek-ai/dsh/skills/xiangtupeibanshi/"
+cp -r xiangtupeibanshi/ "C:/Users/wu'xin/npm-global/node_modules/@deepseek-ai/dsh/skills/xiangtupeibanshi/"
 
 # 3. 验证安装
 ls "C:/Users/wu'xin/npm-global/node_modules/@deepseek-ai/dsh/skills/xiangtupeibanshi/SKILL.md"
@@ -67,11 +67,11 @@ $xiangtupeibanshi
 ```bash
 # 全局安装
 mkdir -p ~/.claude/skills/xiangtupeibanshi
-cp -r hometown-companion/* ~/.claude/skills/xiangtupeibanshi/
+cp -r xiangtupeibanshi/* ~/.claude/skills/xiangtupeibanshi/
 
 # 或项目级安装
 mkdir -p .claude/skills/xiangtupeibanshi
-cp -r hometown-companion/* .claude/skills/xiangtupeibanshi/
+cp -r xiangtupeibanshi/* .claude/skills/xiangtupeibanshi/
 ```
 
 ### 使用方式
@@ -99,11 +99,11 @@ cp -r hometown-companion/* .claude/skills/xiangtupeibanshi/
 ```bash
 # 全局安装
 mkdir -p ~/.codex/skills/xiangtupeibanshi
-cp -r hometown-companion/* ~/.codex/skills/xiangtupeibanshi/
+cp -r xiangtupeibanshi/* ~/.codex/skills/xiangtupeibanshi/
 
 # 或项目级安装
 mkdir -p .codex/skills/xiangtupeibanshi
-cp -r hometown-companion/* .codex/skills/xiangtupeibanshi/
+cp -r xiangtupeibanshi/* .codex/skills/xiangtupeibanshi/
 ```
 
 ### 使用方式
