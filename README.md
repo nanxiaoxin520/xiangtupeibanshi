@@ -50,6 +50,12 @@
 如在中国大陆，可拨打全国统一心理援助热线 **12356**；紧急情况请拨打 **110 / 120**。
 热线信息以 `references/热线与资源速查.md` 为准（核验日期 2026-09-18）。
 
+## 材料补充说明
+
+根据《2023年中国卫生健康统计年鉴》及中国科学院心理研究所 2022 年发布的《中国国民心理健康发展报告》：中国青少年（14–18 岁）抑郁风险检出率为 14.8%，其中重度抑郁风险为 4.0%。自杀是 15–19 岁青少年第二大死因（仅次于意外伤害），该年龄段自杀死亡率约为 2.5–3.1/10 万。在自杀死亡案例中，学业压力和家庭矛盾相关的诱因占比超过 70%。
+
+> 上述数据为**群体统计**，用于说明青少年心理健康的整体处境，**不用于任何个体评估或诊断**。数字可能随新报告发布而变动，引用时请核对最新原始来源。
+
 ## 安装方式（按平台）
 
 ### DeepSeek Harness (DSH)
@@ -216,6 +222,12 @@ Hometown Companion is an emotional companionship and self-support tool. It is **
 If you are at risk of self-harm, suicide, or violence, please contact local emergency services or a trusted person immediately.
 In mainland China, call the national psychological assistance hotline **12356**; for emergencies, dial **110 / 120**.
 Hotline information is authoritative as published in `references/热线与资源速查.md` (verified 2026-09-18).
+
+## Supplementary Data Note
+
+According to the *China Health Statistical Yearbook 2023* and the *China National Mental Health Development Report* published by the Institute of Psychology, Chinese Academy of Sciences, in 2022: among Chinese adolescents (aged 14–18), the detected rate of depression **risk** is 14.8%, of which 4.0% is severe depression risk. Suicide is the **second leading cause of death** among adolescents aged 15–19 (after unintentional injuries), with a suicide mortality rate of approximately 2.5–3.1 per 100,000 in this age group. In suicide deaths, academic pressure and family conflict together account for over 70% of contributing factors.
+
+> These are **population-level statistics**, presented to describe the overall situation of adolescent mental health. They are **not intended for individual assessment or diagnosis**. Figures may change as new reports are published; please verify against the latest primary sources when citing.
 
 ## Installation (By Platform)
 
