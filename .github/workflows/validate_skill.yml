@@ -39,10 +39,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # 外链可达性：非阻断（第三方站点不稳定不应阻塞 PR）
+  # 外链可达性检查
+  #
+  # 说明：本仓库面向中国大陆用户，资源清单中大量为国内站点。
+  # GitHub Actions 的海外 runner 可能因跨境网络策略无法访问这些站点，
+  # 从而产生「假死链」。已实测确认被拦截的域名在下方显式排除，
+  # 每个排除项都必须附带实测依据，不得为「让 CI 变绿」而随意添加。
+  #
+  # 当前排除项：
+  #   cpsbeijing.org（中国心理学会官网）
+  #     实测：证书有效期至 2026-11-06，TLS 1.2/1.3 均支持，国内访问 HTTP 200；
+  #     海外 runner 返回 `received fatal alert: HandshakeFailure`，属跨境策略拦截。
+  #     依据见 references/热线与资源速查.md §9 链接核验说明。
   links:
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,4 +62,5 @@ jobs:
         with:
           args: >-
             --no-progress --max-retries 2 --accept 200,206,429
+            --exclude '^https?://(www\.)?cpsbeijing\.org/'
             '**/*.md'
