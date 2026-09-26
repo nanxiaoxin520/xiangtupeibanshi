@@ -81,6 +81,7 @@ REQUIRED_PATHS = (
     "CHANGELOG.md",
     "VERSION",
     "LICENSE",
+    "NOTICE.md",
     "SECURITY.md",
     "CONTRIBUTING.md",
     "guides/README.md",

@@ -11,6 +11,7 @@
 ### 变更
 
 - `SECURITY.md`：安全报告改为以公开 Issue 为主渠道，与 `.github/ISSUE_TEMPLATE/review.md` 的 Security Review 模板保持一致
+- `NOTICE.md` 纳入校验器的必备文件清单（`REQUIRED_PATHS`）：缺失时直接报「missing required path: NOTICE.md」，而不再只体现为 README/CONTRIBUTING 的断链
 
 ### 文档
 
@@ -117,7 +118,7 @@
 - **README.md**：完整项目介绍 + 使用方式 + 贡献指南 + 许可证 + 推荐 Topics 标签
 - **SECURITY.md**：安全报告流程与响应时间
 - **CONTRIBUTING.md**：贡献规范与行为准则
-- **LICENSE**：MIT 许可证 + 内容引用与版权说明附录
+- **LICENSE**：MIT 许可证 + 内容引用与版权说明附录（该附录现已独立为 `NOTICE.md`，见上文 [Unreleased] 条目）
 - **agents/openai.yaml**：显示名 + 默认 prompt + 系统提示词
 - **.github/**：Issue 模板（bug/feature/content/review）+ PR 模板
 - **.github/workflows/**：CI 工作流（validate_skill.py 验证 + 断链检查）

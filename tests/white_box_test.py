@@ -136,6 +136,7 @@ def make_fixture(base: Path) -> Path:
     w("VERSION", "0.1.1")
     w("CHANGELOG.md", "# 更新日志\n\n## [0.1.1] - 2026-09-18\n\n- 初版\n")
     w("LICENSE", "MIT License\n\nCopyright (c) 2026 xiangtupeibanshi contributors\n")
+    w("NOTICE.md", "# 内容引用与版权说明\n\n代码适用 MIT；书籍整理与二手诠释不在授权范围内。\n")
     w("README.md", "# 乡土陪伴师\n")
     w("SECURITY.md", "# 安全\n")
     w("CONTRIBUTING.md", "# 贡献\n")
@@ -325,6 +326,11 @@ class TestA4Inventory(FixtureCase):
     def test_missing_required_path(self):
         (self.root / "SECURITY.md").unlink()
         self.assertErrors(VS.check_inventory, "缺必需路径", "missing required path")
+
+    def test_content_notice_is_required(self):
+        """NOTICE.md 界定 MIT 只覆盖代码；缺失会让内容授权范围失去声明，须直接报缺文件。"""
+        (self.root / "NOTICE.md").unlink()
+        self.assertErrors(VS.check_inventory, "缺内容授权声明", "missing required path: NOTICE.md")
 
 
 class TestA5Links(FixtureCase):
