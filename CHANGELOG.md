@@ -7,6 +7,10 @@
 
 ## [Unreleased]
 
+### 变更
+
+- `SECURITY.md`：安全报告改为以公开 Issue 为主渠道，与 `.github/ISSUE_TEMPLATE/review.md` 的 Security Review 模板保持一致
+
 ### 文档
 
 - 新增 `NOTICE.md`：内容引用与版权说明，界定 MIT 授权覆盖范围

@@ -2,12 +2,11 @@
 
 ## 如何报告
 
-如果发现安全问题：
+如果发现安全问题，欢迎直接公开报告：
 
-- **DO NOT** 公开报告（不要在 Issue 或 PR 中公开安全漏洞）
-- 请通过 GitHub 私信或仓库维护者公开邮箱联系
-- 如暂时无法联系维护者，可在 Issue 中使用 `[SECURITY]` 标签并简略描述（不包含敏感细节）
-- 主题格式：`[SECURITY] xiangtupeibanshi - <简要描述>`
+- 新开 Issue，主题格式：`[SECURITY] xiangtupeibanshi - <简要描述>`，或直接使用 [Security Review 模板](.github/ISSUE_TEMPLATE/review.md)
+- 也可通过 GitHub 私信或仓库维护者公开邮箱联系
+- 无论通过哪种渠道，报告中请勿包含真实用户对话、个人隐私或危机案例细节
 
 ## 响应时间
 
