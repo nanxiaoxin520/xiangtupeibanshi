@@ -14,18 +14,9 @@ copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
----
-
-## 内容引用与版权说明（附录）
-
-本仓库中的代码（SKILL.md、agents/openai.yaml、scripts/、.github/ 等）根据 MIT 许可证授权。
-
-以下内容**不属于本 MIT 许可证的授权范围**，仅作为学习参考整理，其版权归原作者和出版社所有：
-
-- `_books/` 目录中的书籍档案卡内容（包括但不限于《乡土中国》《原生家庭》《身体从未忘记》《依恋》《亲密关系》《蛤蟆先生去看心理医生》等书籍的参考整理）
-- `guides/` 和 `references/` 目录中基于公开出版物、研究综述和文化资料的二手诠释内容
-- `documentation/` 目录中的治疗流派速查、关系伤害分析 SOP 等参考性整理
-
-引用内容的使用应遵循原出版物的版权规定和合理使用（fair use）原则。本 Skill 的发布和使用不构成对引用内容的授权转载或商业化利用。如需引用原书内容，请直接参考原版出版物。

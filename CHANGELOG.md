@@ -5,6 +5,15 @@
 
 ---
 
+## [Unreleased]
+
+### 文档
+
+- 新增 `NOTICE.md`：内容引用与版权说明，界定 MIT 授权覆盖范围
+- `README.md`、`CONTRIBUTING.md` 的许可证章节同步指向 `NOTICE.md`
+
+---
+
 ## [0.1.2] - 2026-09-18 - 资源链接修正
 
 ### 修复

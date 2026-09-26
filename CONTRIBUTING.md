@@ -38,4 +38,4 @@
 
 ## 许可证
 
-贡献的内容将采用 MIT License，详见 [LICENSE](LICENSE)。
+贡献的代码将采用 MIT License，详见 [LICENSE](LICENSE)。整理自出版物的书籍内容与二手诠释不受 MIT 授权，范围见 [NOTICE.md](NOTICE.md)。

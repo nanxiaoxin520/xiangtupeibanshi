@@ -113,7 +113,8 @@ xiangtupeibanshi/
 ├── README.md                   # 本文件（中英双轨）
 ├── CHANGELOG.md                # 版本记录
 ├── VERSION                     # 版本号 (0.1.2)
-├── LICENSE                     # MIT License + 内容引用附录
+├── LICENSE                     # MIT License（仅适用于代码）
+├── NOTICE.md                   # 内容引用与版权说明（MIT 未覆盖部分）
 ├── SECURITY.md                 # 安全报告流程
 ├── CONTRIBUTING.md             # 贡献指南
 ├── CODE_OF_CONDUCT.md          # 行为准则
@@ -167,7 +168,7 @@ xiangtupeibanshi/
 
 ## 许可证
 
-MIT License。
+代码部分采用 [MIT License](LICENSE)；书籍整理与二手诠释内容**不在 MIT 授权范围内**，详见 [NOTICE.md](NOTICE.md)。
 使用前请阅读并遵守安全声明与伦理原则。
 
 ---
@@ -280,7 +281,8 @@ xiangtupeibanshi/
 ├── README.md                   # This file (bilingual)
 ├── CHANGELOG.md                # Version history
 ├── VERSION                     # Version number (0.1.2)
-├── LICENSE                     # MIT License + content attribution appendix
+├── LICENSE                     # MIT License (code only)
+├── NOTICE.md                   # Content & copyright notice (not covered by MIT)
 ├── SECURITY.md                 # Security reporting process
 ├── CONTRIBUTING.md             # Contributing guide
 ├── CODE_OF_CONDUCT.md          # Code of conduct
@@ -334,5 +336,5 @@ Do **not** include real user conversations, personal privacy, or crisis case det
 
 ## License
 
-MIT License.
+Code is licensed under the [MIT License](LICENSE). Book summaries and secondary interpretations are **not** covered by MIT — see [NOTICE.md](NOTICE.md).
 Please read and comply with the safety disclaimer and ethical principles before use.
