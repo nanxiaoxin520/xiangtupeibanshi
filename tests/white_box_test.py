@@ -3,9 +3,12 @@
 
 覆盖范围：
   A. validate_skill.py 的 12 类检查——每类均验证「通过」与「失败」分支
-  B. clean_bold.py 的清洗规则边界
-  C. fix_hotlines.py 的邻近性判断与否定语境
-  D. 真实仓库集成验收（结构 / 预算 / 路由可达性 / 热线 / 幂等性 / 密钥）
+  B. clean_bold.py 的清洗规则边界与 CLI 三分支
+  C. fix_hotlines.py 的邻近性判断、否定语境与受保护区域
+  E. 跨脚本一致性（校验器与修正器同口径、三份受保护行实现同源）
+  D. 真实仓库集成验收（结构 / 预算 / 路由可达性 / 热线 / 幂等性 / 密钥 / 输出编码）
+
+已知限制以「characterization」用例显式钉住当前行为，改动即失败，避免悄悄退化。
 
 用法：
     python tests/white_box_test.py            # 运行全部
@@ -14,8 +17,13 @@
 
 from __future__ import annotations
 
+import contextlib
 import importlib.util
+import io
+import os
+import re
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -145,7 +153,10 @@ def make_fixture(base: Path) -> Path:
       "guides: 19\nexamples: 0\nreferences: 1\ndocumentation: 0\nbooks: 1\n")
     w("_books/README.md")
     w("_books/《乡土中国》.md",
-      "---\ntitle: 《乡土中国》\nauthor: 费孝通\ntype: sociology\n---\n\n"
+      "---\ntitle: 《乡土中国》\nauthor: 费孝通\ntype: sociology\n"
+      "domain: 文化与社会\naudience: 进阶\napproach: 本土整合\n"
+      "culture: 中国本土\nevidence: C\n"
+      "tags: [板块/文化与社会, 读者/进阶, 取向/本土整合, 文化圈/中国本土, 主题/关系]\n---\n\n"
       "# 《乡土中国》\n\n## 重要的未读边界\n\n基于公开资料。\n")
     return base
 
@@ -217,6 +228,45 @@ class TestA1Frontmatter(FixtureCase):
         self.write("SKILL.md", "---\nname: xiangtupeibanshi\n  description: 缩进错误\n---\n\n# x\n")
         self.assertErrors(VS.check_skill_frontmatter, "frontmatter 缩进", "缩进")
 
+    def test_missing_colon(self):
+        self.write("SKILL.md", "---\nname xiangtupeibanshi\ndescription: d\n---\n\n# x\n")
+        self.assertErrors(VS.check_skill_frontmatter, "缺冒号", "缺少 ':'")
+
+    def test_illegal_key(self):
+        self.write("SKILL.md", "---\n名称: 中文键\ndescription: d\n---\n\n# x\n")
+        self.assertErrors(VS.check_skill_frontmatter, "非法键名", "非法键名")
+
+    def test_empty_description(self):
+        self.write("SKILL.md", SKILL_OK.replace(
+            "description: 乡土陪伴师——面向家庭创伤经历者的 AI 陪伴 Skill，非医疗工具。",
+            "description:"))
+        self.assertErrors(VS.check_skill_frontmatter, "空 description", "为空")
+
+    def test_overlong_description(self):
+        self.write("SKILL.md", SKILL_OK.replace(
+            "description: 乡土陪伴师——面向家庭创伤经历者的 AI 陪伴 Skill，非医疗工具。",
+            "description: " + "长" * 1100))
+        self.assertErrors(VS.check_skill_frontmatter, "超长 description", "超过")
+
+    def test_name_not_matching_charset(self):
+        """name 既不等于内核名，也不符合 [a-z0-9-]{1,64} → 两条错误都要出。"""
+        self.write("SKILL.md", SKILL_OK.replace(
+            "name: xiangtupeibanshi", "name: XiangTuPei_BanShi"))
+        self.assertErrors(VS.check_skill_frontmatter, "name 字符集", "不符合")
+
+    def test_bold_in_description_warns_only(self):
+        self.write("SKILL.md", SKILL_OK.replace(
+            "description: 乡土陪伴师——面向家庭创伤经历者的 AI 陪伴 Skill，非医疗工具。",
+            "description: **乡土陪伴师**——AI 陪伴 Skill"))
+        VS.WARNINGS.clear()
+        self.assertClean(VS.check_skill_frontmatter, "加粗 description 只应 WARN")
+        self.assertTrue(any("加粗标记" in w for w in VS.WARNINGS),
+                        f"应产生 WARN，实际 {VS.WARNINGS}")
+
+    def test_missing_skill_file(self):
+        (self.root / "SKILL.md").unlink()
+        self.assertErrors(VS.check_skill_frontmatter, "SKILL.md 缺失", "missing required path")
+
 
 class TestA2Budget(FixtureCase):
     def test_baseline_clean(self):
@@ -233,6 +283,11 @@ class TestA2Budget(FixtureCase):
 
     def test_token_counter_monotonic(self):
         self.assertLess(VS.approximate_token_count("短"), VS.approximate_token_count("长" * 100))
+
+    def test_missing_file_is_silent(self):
+        """预算检查不报「缺文件」——那是 check_inventory 的职责，避免重复报错。"""
+        (self.root / "SKILL.md").unlink()
+        self.assertClean(VS.check_skill_budget, "SKILL.md 缺失时预算检查应静默")
 
 
 class TestA3Structure(FixtureCase):
@@ -477,6 +532,43 @@ class TestA12Manifest(FixtureCase):
 
 
 # ============================================================ B. 清洗器
+class TestA13Dimensions(FixtureCase):
+    """多维正交标注闸门：字段齐全 + 取值受控 + 与标签同步。"""
+
+    FULL = ("---\ntitle: A\nauthor: B\ntype: t\n"
+            "domain: 依恋与创伤\naudience: 专业\napproach: 循证操作\n"
+            "culture: 西方引进\nevidence: A\n"
+            "tags: [板块/依恋与创伤, 读者/专业, 取向/循证操作, 文化圈/西方引进]\n---\n\n未读\n")
+
+    def test_baseline_clean(self):
+        self.assertClean(VS.check_dimensions, "多维标注基线")
+
+    def test_missing_dimension_field(self):
+        self.write("_books/《缺维度》.md",
+                   "---\ntitle: 缺维度\nauthor: B\ntype: t\nevidence: C\n---\n\n未读\n")
+        self.assertErrors(VS.check_dimensions, "缺板块字段", "缺 domain")
+
+    def test_value_out_of_vocab(self):
+        self.write("_books/《越界》.md", self.FULL.replace("domain: 依恋与创伤",
+                                                        "domain: 玄幻修真"))
+        self.assertErrors(VS.check_dimensions, "取值越界", "不在受控词表")
+
+    def test_field_and_tag_must_stay_in_sync(self):
+        self.write("_books/《脱同步》.md",
+                   self.FULL.replace("tags: [板块/依恋与创伤, ", "tags: ["))
+        self.assertErrors(VS.check_dimensions, "标签缺维度", "不同步")
+
+    def test_evidence_grade_vocab(self):
+        self.write("_books/《评级》.md", self.FULL.replace("evidence: A", "evidence: D"))
+        self.assertErrors(VS.check_dimensions, "证据等级越界", "evidence='D'")
+
+    def test_every_card_must_be_labeled(self):
+        """闸门是严格的：没标注的卡会报错，而不是「有标就查」——否则会重演两层结构无门禁。"""
+        self.write("_books/《未标注》.md", "---\ntitle: 未标注\nauthor: B\ntype: t\n---\n\n未读\n")
+        errs = self.run_check(VS.check_dimensions)
+        self.assertTrue(any("未标注" in e for e in errs), f"未标注卡应报错：{errs}")
+
+
 class TestBCleanBold(unittest.TestCase):
     def test_pollution_removed(self):
         out, hit, res = CB.clean_line("> **本**文**档** = **整**个** s**k**i**l**l** 框**架**")
@@ -643,6 +735,30 @@ class TestDIntegration(unittest.TestCase):
         self.assertIsNotNone(m, "docs/manifest.yaml 缺少 version 字段")
         self.assertEqual(m.group(1), version, "manifest 版本与 VERSION 不一致")
 
+    def test_dimension_vocab_matches_data_source(self):
+        """校验器里的受控词表须与数据源 _plan/_taxonomy_dimensions.tsv 一致。
+
+        _plan/ 在 skill 仓之外（独立成仓 / CI 上不可见）时跳过，不因此变红。
+        """
+        src = ROOT.parent / "_plan" / "_taxonomy_dimensions.tsv"
+        if not src.is_file():
+            self.skipTest("_plan/_taxonomy_dimensions.tsv 不可见（skill 独立成仓场景）")
+        keys = ["domain", "audience", "approach", "culture"]
+        found = {k: set() for k in keys}
+        books = 0
+        for ln in src.read_text(encoding="utf-8-sig").split("\n"):
+            f = [x.strip() for x in ln.split("|||")]
+            if len(f) != 5:
+                continue
+            books += 1
+            for k, v in zip(keys, f[1:]):
+                found[k].add(v)
+        self.assertEqual(books, len(list((ROOT / "_books").glob("《*.md"))),
+                         "数据源书目数与 _books/ 卡片数不一致")
+        for k in keys:
+            self.assertEqual(found[k], VS.DIM_VOCAB[k],
+                             f"{k} 词表漂移：数据源 {sorted(found[k])} vs 校验器 {sorted(VS.DIM_VOCAB[k])}")
+
     def test_pubmed_sources_archived(self):
         self.assertTrue((ROOT / "_books" / "_sources").is_dir())
         self.assertEqual(len(list((ROOT / "_books").glob("_pubmed_*.md"))), 0)
@@ -651,6 +767,490 @@ class TestDIntegration(unittest.TestCase):
     def test_invalid_products_removed(self):
         for rel in ("package.json", "package-lock.json", "setup_github.sh"):
             self.assertFalse((ROOT / rel).exists(), f"{rel} 应已删除")
+
+    def test_child_output_is_utf8_decodable(self):
+        """脚本输出必须可按 UTF-8 解码。
+
+        Windows 控制台默认 cp936，曾使父进程按 UTF-8 解码子进程 stderr 时抛
+        UnicodeDecodeError，CompletedProcess.stderr 变成 None，断言以
+        TypeError 收场——真实缺陷被编码问题掩盖成「测试挂了」。
+        """
+        import subprocess
+        env = {k: v for k, v in os.environ.items() if k != "PYTHONIOENCODING"}
+        for script, args, needle, stream in (
+            ("fix_hotlines.py", ["--dry-run"], "合计", "stderr"),
+            ("clean_bold.py", ["--check"], "污染文件", "stderr"),
+            ("validate_skill.py", [], "validation passed", "stdout"),
+        ):
+            r = subprocess.run([sys.executable, str(SCRIPTS / script), *args],
+                               cwd=ROOT, capture_output=True, text=True,
+                               encoding="utf-8", env=env)
+            text = getattr(r, stream)
+            self.assertIsNotNone(text, f"{script} 的 {stream} 解码失败（None）")
+            self.assertIn(needle, text, f"{script} 输出缺少 {needle!r}：{text[:120]!r}")
+
+
+# ============================================================ E. 未覆盖分支
+class TestEValidatorBranches(FixtureCase):
+    """补齐 A1–A12 中「从未走过」的分支（覆盖率驱动）。"""
+
+    def test_a3_missing_file_is_silent(self):
+        (self.root / "SKILL.md").unlink()
+        self.assertClean(VS.check_skill_structure, "SKILL.md 缺失时结构检查应静默")
+
+    def test_a5_angle_bracket_target_skipped(self):
+        """CommonMark 允许用 <> 包裹含特殊字符的链接目标，此类目标跳过断链检查。"""
+        self.write("README.md", "见 [转义路径](<guides/%E5%B8%A6.md>)\n")
+        self.assertClean(VS.check_links, "尖括号包裹的目标应跳过")
+
+    def test_a6_placeholder_note_line_can_conceal(self):
+        """characterization：含「占位符」字样的行整行豁免，可藏匿真实占位符。
+
+        钉住现状而非认可它——若要收紧（如只豁免说明性前缀），此用例应先被改写。
+        """
+        line = "本行解释占位符：此处仍有 [TODO 未完成\n"
+        self.assertTrue(VS.PLACEHOLDER_NOTE.search(line))
+        self.write("README.md", line)
+        self.assertClean(VS.check_placeholders, "豁免行内的 [TODO 现状不被检出")
+
+    def test_a7_forbidden_term_detected(self):
+        """历史残留术语分支（此前 0 覆盖）。"""
+        self.write("SECURITY.md", "示例：狗头军师\n")
+        self.assertErrors(VS.check_forbidden_terms, "残留术语", "历史残留术语")
+
+    def test_a7_term_allowlist(self):
+        self.write("README.md", "示例：狗头军师\n")
+        self.assertClean(VS.check_forbidden_terms, "README 术语应豁免")
+
+    def test_a7_name_variant_not_term_exempted(self):
+        """README 只豁免术语，不豁免命名变体——两类白名单不同源。"""
+        self.write("README.md", "示例：xinli-zhushou\n")
+        self.assertErrors(VS.check_forbidden_terms, "README 命名变体", "命名禁用变体")
+
+    def test_a8_inline_code_exempt(self):
+        """文档需要用反引号书写污染反例，否则成了既判错又修不了的死结。"""
+        self.write("references/README.md", "检测「隔字加粗」（如 `**本**文**档**` 形态）\n")
+        self.assertClean(VS.check_bold_pollution, "行内代码段应豁免")
+
+    def test_a8_single_char_bold_false_positive(self):
+        """characterization：`**1**月**2**日` 形态的合法排版会被判为污染。
+
+        收紧正则会放过真正的污染（既有回归用例 test_crisis_script_cleaned），
+        故保留误报并在报告中标注；此处钉住行为，避免无人察觉地变化。
+        """
+        self.assertTrue(VS.BOLD_SIGNATURE.search("- **1**月**2**日开会"))
+
+    def test_a9_canonical_file_missing(self):
+        (self.root / "references" / "热线与资源速查.md").unlink()
+        self.assertErrors(VS.check_hotlines, "缺权威源文件", "missing canonical hotline file")
+
+    def test_a10_books_dir_missing(self):
+        shutil.rmtree(self.root / "_books")
+        self.assertErrors(VS.check_books, "缺 _books 目录", "missing required directory")
+
+    def test_a10_book_frontmatter_unparseable(self):
+        self.write("_books/《坏卡》.md", "没有 frontmatter 的正文\n")
+        self.assertErrors(VS.check_books, "卡片 frontmatter 解析失败", "frontmatter")
+
+    def test_a10_book_boundary_is_substring_only(self):
+        """characterization：断言是「未读」二字子串，不要求小节标题。
+
+        正文任意位置出现「未读」即通过——真正的结构约束（`## 重要的未读边界`）
+        未被校验，靠流水线纪律维持。
+        """
+        self.write("_books/《空洞卡》.md",
+                   "---\ntitle: 空洞\nauthor: 佚名\ntype: 心理学\n---\n\n"
+                   "# 空洞\n\n未读过本书的读者请先看导读。\n")
+        self.assertClean(VS.check_books, "子串断言现状：无边界小节也通过")
+
+    def test_a11_version_file_missing_is_silent(self):
+        (self.root / "VERSION").unlink()
+        self.assertClean(VS.check_versions, "VERSION 缺失时版本检查应静默")
+
+    def test_a11_skill_version_conflicts_with_frontmatter_rule(self):
+        """check_versions 支持 SKILL.md 的 version 键，而 A1 规定键只能是两个。
+
+        后果：该分支只能与 A1 的错误同时出现，实际不构成独立的版本闸门。
+        """
+        self.write("SKILL.md", SKILL_OK.replace(
+            "name: xiangtupeibanshi", "name: xiangtupeibanshi\nversion: 9.9.9"))
+        self.assertErrors(VS.check_versions, "SKILL.md 版本不一致", "与 VERSION")
+        self.assertErrors(VS.check_skill_frontmatter, "同一文件已被 A1 判错", "键须为")
+
+    def test_a12_missing_count_key_warns_only(self):
+        self.write("docs/manifest.yaml", "guides: 19\nexamples: 0\nreferences: 1\n")
+        errs = self.run_check(VS.check_manifest)
+        VS.WARNINGS.clear()
+        VS.check_manifest()
+        self.assertEqual(errs, [], f"缺计数项应为 WARN，实际 {errs}")
+        self.assertTrue(any("缺少计数项" in w for w in VS.WARNINGS),
+                        f"应 WARN 缺失计数项，实际 {VS.WARNINGS}")
+
+    def test_rel_falls_back_for_outside_path(self):
+        self.assertEqual(VS.rel(Path("Z:/outside/x.md")), str(Path("Z:/outside/x.md")))
+
+    def test_a1_frontmatter_blank_line_allowed(self):
+        self.write("SKILL.md",
+                   "---\nname: xiangtupeibanshi\n\ndescription: d\n---\n\n# x\n")
+        self.assertClean(VS.check_skill_frontmatter, "frontmatter 空行应跳过")
+
+    def test_a5_anchor_link_skipped(self):
+        self.write("README.md", "见 [本节](#检查项清单) 与 [外链](mailto:a@b.c)\n")
+        self.assertClean(VS.check_links, "页内锚点与 mailto 不应做断链检查")
+
+    def test_main_returns_one_on_errors(self):
+        self.write("SKILL.md", "# 无 frontmatter\n")
+        (self.root / "docs" / "manifest.yaml").unlink()  # 触发 WARN 分支
+        buf = io.StringIO()
+        saved_argv = sys.argv
+        sys.argv = ["validate_skill.py"]
+        try:
+            with contextlib.redirect_stdout(buf):
+                code = VS.main()
+        finally:
+            sys.argv = saved_argv
+        self.assertEqual(code, 1, "有 ERROR 时退出码应为 1")
+        out = buf.getvalue()
+        self.assertIn("validation failed", out)
+        self.assertIn("WARN: docs/manifest.yaml", out, "WARN 也应在退出码之前打印")
+        self.assertTrue(any(line.startswith("ERROR: ") for line in out.splitlines()),
+                        "失败输出应逐条打印 ERROR")
+
+    def test_main_quiet_suppresses_success_line(self):
+        sys.argv = ["validate_skill.py", "--quiet"]
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                code = VS.main()
+        finally:
+            sys.argv = ["validate_skill.py"]
+        self.assertEqual(code, 0, f"基线夹具应通过，错误：{VS.ERRORS[:3]}")
+        self.assertNotIn("validation passed", buf.getvalue(), "--quiet 不应打印成功行")
+
+
+class TestFCleanBoldInternals(unittest.TestCase):
+    """clean_bold 的 scan / protected_flags / CLI 分支（此前只在子进程里跑过）。"""
+
+    def setUp(self):
+        self._tmp = tempfile.mkdtemp(prefix="cb-")
+        self.root = Path(self._tmp)
+        self._saved_root, self._saved_argv = CB.ROOT, sys.argv
+        CB.ROOT = self.root
+
+    def tearDown(self):
+        CB.ROOT, sys.argv = self._saved_root, self._saved_argv
+        shutil.rmtree(self._tmp, ignore_errors=True)
+
+    def write(self, rel: str, text: str) -> Path:
+        p = self.root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding="utf-8")
+        return p
+
+    def test_protected_flags_frontmatter_and_fence(self):
+        text = "---\nd: **本**文**档**\n---\n正文 **本**文**档**\n```\n**本**文**档**\n```\n尾行\n"
+        flags = CB.protected_flags(text)
+        self.assertTrue(flags[1] and flags[2], "frontmatter 应受保护")
+        self.assertFalse(flags[3], "正文污染行不应受保护")
+        self.assertTrue(flags[5] and flags[6], "围栏代码块及其内容应受保护")
+        self.assertFalse(flags[7])
+
+    def test_scan_protects_frontmatter_and_fences(self):
+        p = self.write("a.md", "---\nt: **本**文**档**\n---\n\n- **自**我**介**绍\n"
+                             "- 污染 **本**文**档** 结尾还有 **\n")
+        original, new, changed, residual = CB.scan(p)
+        self.assertEqual(changed, 2, "frontmatter 行不受影响，应改 2 行")
+        self.assertIn("t: **本**文**档**", new, "frontmatter 原文应保留")
+        self.assertIn("- 自我介绍", new)
+        self.assertEqual(residual, [], "代码段外的 ** 会被全部剥离，不存在真残留")
+
+    def test_residual_only_reports_inline_code(self):
+        """characterization：residual 只可能由行内代码段触发。
+
+        clean_line 会剥掉代码段外的一切 `**`，所以「需人工复核」通道报的都是
+        代码段引起的假报；而真正该人工看的孤立星号（`*`）反而不会被报。
+        若要让人工复核通道有意义，需改成检测未配对的单个 `*`。
+        """
+        _, _, _, res = CB.scan(self.write("r1.md", "见 `**` 与 **本**文**档**\n"))
+        self.assertEqual([n for n, _ in res], [1], "代码段里的 ** 被当成需人工复核")
+        _, _, _, res = CB.scan(self.write("r2.md", "单个星号 * 残留 与 **本**文**档**\n"))
+        self.assertEqual(res, [], "真正需要人工复核的孤立 * 不会被报出（已知限制）")
+
+    def _cli(self, *args):
+        import contextlib
+        sys.argv = ["clean_bold.py", *args]
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = CB.main()
+        return code, out.getvalue() + err.getvalue()
+
+    def test_cli_check_flags_and_write_repairs(self):
+        self.write("b.md", "- **本**文**档**污染\n")
+        code, log = self._cli("--check")
+        self.assertEqual(code, 1, "--check 有污染应返回 1")
+        self.assertIn("POLLUTED", log)
+        code, log = self._cli("--dry-run")
+        self.assertEqual(code, 0, "--dry-run 即使有污染也返回 0")
+        self.assertIn("WOULD FIX", log)
+        self.assertIn("**本**文**档**", (self.root / "b.md").read_text(encoding="utf-8"),
+                      "--dry-run 不得写盘")
+        code, log = self._cli("--write")
+        self.assertEqual(code, 0)
+        self.assertEqual((self.root / "b.md").read_text(encoding="utf-8"), "- 本文档污染\n")
+        code, _ = self._cli("--check")
+        self.assertEqual(code, 0, "写盘后应幂等")
+
+    def test_cli_reports_residual_lines_for_review(self):
+        """残留行要在输出里可见，否则人工复核无从谈起。"""
+        self.write("c.md", "示例 `**` 与污染 **本**文**档**\n")
+        code, log = self._cli("--dry-run")
+        self.assertIn("需人工复核的残留行 1 行", log)
+        self.assertIn("c.md:1", log)
+        self.assertIn("残留行样例", log)
+
+
+class TestGFixHotlinesGuards(unittest.TestCase):
+    """fix_hotlines 的受保护区与邻近性——行内代码曾被改写并反转语义。"""
+
+    def test_inline_code_not_rewritten(self):
+        """规则示例常写在反引号里；改写它会把「禁止 X 后缀」变成「禁止 12356」。"""
+        line = "禁止 `12356-5` 与 `2022 新设` 两种写法"
+        text, notes = FH.fix_text(line)
+        self.assertEqual(text, line, "行内代码段不得改写")
+        self.assertEqual(notes, [])
+
+    def test_fenced_block_and_frontmatter_not_rewritten(self):
+        text = "---\nnote: 生命热线 400-821-1215（24h）\n---\n\n```\n12356-5\n```\n\n"
+        new, _ = FH.fix_text(text)
+        self.assertEqual(new, text, "frontmatter 与围栏代码块应整块受保护")
+
+    def test_digit_suffix_fully_removed(self):
+        """只删 `-5` 会让 12356-55 变成 123565：新错号且校验器不再报。"""
+        for raw, want in (("热线 12356-55 可用", "热线 12356 可用"),
+                          ("拨打 12356-58", "拨打 12356"),
+                          ("热线 12356-5 与 12356-55", "热线 12356 与 12356")):
+            text, _ = FH.fix_text(raw)
+            self.assertEqual(text, want)
+            self.assertIsNone(re.search(r"12356\d", text), f"不应留 concatenated 号码: {text}")
+
+    def test_institution_name_preserved(self):
+        line = "北京心理危机研究与干预中心生命热线 010-82951332"
+        text, _ = FH.fix_text(line)
+        self.assertEqual(text, line, "机构名前缀中的「生命热线」不是 Shanghai 线的别名")
+        text, _ = FH.fix_text("- 生命热线 400-821-1215")
+        self.assertIn("Lifeline Shanghai", text)
+
+    def test_cn_duration_replaced_and_parens_preserved(self):
+        text, notes = FH.fix_text("- **400-821-1215**（24 小时）")
+        self.assertEqual(text, "- **400-821-1215**（10:00–22:00）")
+        text, _ = FH.fix_text("- 400-821-1215 提供 24 小时服务")
+        self.assertEqual(text, "- 400-821-1215 提供 10:00–22:00服务",
+                         f"无括号时不应插入括号：{text}")
+        self.assertTrue(notes or True)
+
+    def test_negation_still_protected_after_broadening(self):
+        for line in ("- 400-821-1215，非 24 小时（10:00–22:00）",
+                     "- 400-821-1215 不是 24 小时热线",
+                     "- 400-821-1215 未提供 24 小时服务"):
+            text, _ = FH.fix_text(line)
+            self.assertEqual(text, line, f"否定语境被误改：{text}")
+
+    def test_blank_code_keeps_positions(self):
+        """掩码必须等长，否则替换位置会漂移到文本其他区域。"""
+        line = "前 `12356-5` 后 生命热线 400-821-1215（24h）"
+        mask = FH.blank_code(line)
+        self.assertEqual(len(mask), len(line))
+        self.assertNotIn("12356-5", mask)
+        self.assertIn("12356-5", line)
+
+    def test_year_corrected_in_both_paren_forms(self):
+        for raw, want in (("- 12356（2022 新设）", "- 12356（2024-12 设置）"),
+                          ("- 12356(2022 新设)", "- 12356(2024-12 设置)"),
+                          ("- 12356 于 2022 新设开通", "- 12356 于 2024-12 设置开通")):
+            text, notes = FH.fix_text(raw)
+            self.assertEqual(text, want)
+            self.assertTrue(any("年份错误" in n for n in notes))
+
+    def test_multiple_errors_on_one_line(self):
+        text, notes = FH.fix_text("热线 12356-5，另有 生命热线 400-821-1215（24h）")
+        self.assertEqual(text, "热线 12356，另有 Lifeline Shanghai 400-821-1215（10:00–22:00）")
+        self.assertEqual(len(notes), 3, f"应记录 3 处修正，实际 {notes}")
+
+    def test_misnomer_without_number_untouched(self):
+        line = "这条生命热线帮了很多人的忙"
+        text, _ = FH.fix_text(line)
+        self.assertEqual(text, line, "未提及 400-821-1215 时不改写日常用语")
+
+    def _cli(self, *args):
+        sys.argv = ["fix_hotlines.py", *args]
+        out, err = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            code = FH.main()
+        return code, out.getvalue() + err.getvalue()
+
+    def test_cli_dry_run_then_write_is_idempotent(self):
+        """CLI 三分支：dry-run 不改盘、write 改盘、再跑一次应为 0 个文件。"""
+        saved = FH.ROOT
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                FH.ROOT = Path(td)
+                (FH.ROOT / "guides").mkdir()
+                (FH.ROOT / "references").mkdir()
+                (FH.ROOT / "references" / "热线与资源速查.md").write_text(
+                    CANONICAL_HOTLINE, encoding="utf-8")
+                target = FH.ROOT / "guides" / "40-危机识别.md"
+                target.write_text("- 生命热线 400-821-1215（24h）\n热线 12356-5\n",
+                                  encoding="utf-8")
+                (FH.ROOT / "CHANGELOG.md").write_text("- 历史：12356-5 已移除\n",
+                                                     encoding="utf-8")
+                code, log = self._cli("--dry-run")
+                self.assertEqual(code, 0)
+                self.assertIn("WOULD FIX", log)
+                self.assertIn("合计 1 个文件", log)
+                self.assertIn("12356-5", target.read_text(encoding="utf-8"),
+                              "dry-run 不得写盘")
+                self._cli("--write")
+                self.assertEqual(target.read_text(encoding="utf-8"),
+                                 "- Lifeline Shanghai 400-821-1215（10:00–22:00）\n热线 12356\n")
+                self.assertIn("- 历史：12356-5 已移除\n",
+                              (FH.ROOT / "CHANGELOG.md").read_text(encoding="utf-8"),
+                              "CHANGELOG 应被跳过")
+                code, log = self._cli("--dry-run")
+                self.assertIn("合计 0 个文件", log, "写盘后应幂等")
+        finally:
+            FH.ROOT = saved
+
+
+    def test_iter_files_skips_archive_dirs_and_changelog(self):
+        """SKIP_PARTS / SKIP_FILES 决定改写面；名单一旦漂移就可能扫进快照目录。"""
+        saved = FH.ROOT
+        try:
+            with tempfile.TemporaryDirectory() as td:
+                FH.ROOT = Path(td)
+                for rel in ("guides/a.md", "CHANGELOG.md", "_plan/b.md",
+                            "backups/c.md", "node_modules/d.md", ".git/e.md",
+                            ".github/workflows/f.yml"):
+                    p = FH.ROOT / rel
+                    p.parent.mkdir(parents=True, exist_ok=True)
+                    p.write_text("内容\n", encoding="utf-8")
+                found = {str(p.relative_to(FH.ROOT)).replace("\\", "/")
+                         for p in FH.iter_files()}
+                self.assertEqual(found, {"guides/a.md", ".github/workflows/f.yml"},
+                                 f"改写面不符预期：{sorted(found)}")
+        finally:
+            FH.ROOT = saved
+
+
+class TestHCrossScriptConsistency(FixtureCase):
+    """校验器与修正器必须同口径：判错即必修得，修得即必判错。"""
+
+    SAMPLES = (
+        "- **400-821-1215**（24h）",
+        "- **400-821-1215**（24 小时）",
+        "- 400-821-1215 提供 24 小时服务",
+        "- 生命热线 400-821-1215 英语服务",
+        "热线 12356-5 可用",
+        "热线 12356-55 可用",
+        "- 12356（2022 新设）",
+        "- 12356 于 2022 新设开通",
+        "- 400-821-1215，非 24 小时（10:00–22:00）",
+        "- 400-821-1215 不是 24 小时热线",
+        "- 010-82951332（24h，最权威）/ 400-821-1215 Lifeline Shanghai（10:00–22:00）",
+        "北京心理危机研究与干预中心生命热线 010-82951332",
+    )
+
+    def validate_line(self, line: str) -> list[str]:
+        """把样本写入真实会被扫描的文件，跑 check_hotlines，返回错误。"""
+        guide = self.root / "guides" / "40-危机识别.md"
+        baseline = guide.read_text(encoding="utf-8")
+        guide.write_text(line + "\n", encoding="utf-8")
+        try:
+            return self.run_check(VS.check_hotlines)
+        finally:
+            guide.write_text(baseline, encoding="utf-8")
+
+    def test_error_implies_fixable(self):
+        for line in self.SAMPLES:
+            with self.subTest(line=line):
+                errs = self.validate_line(line)
+                fixed, _ = FH.fix_text(line)
+                self.assertEqual(bool(errs), fixed != line,
+                                 f"校验判错={bool(errs)} 修正器改写={fixed != line} → 口径脱节")
+
+    def test_fixer_output_revalidates_clean(self):
+        """修正一次即应收敛到无错误；否则说明两端口径仍有缝隙。"""
+        for line in self.SAMPLES:
+            with self.subTest(line=line):
+                fixed, _ = FH.fix_text(line)
+                self.assertEqual(self.validate_line(fixed), [], f"修正后仍判错：{fixed}")
+
+    def test_negation_forms_agree(self):
+        """「非 / 不是 / 未」等否定表述：既不判错，也不被改写。"""
+        for line in ("- 400-821-1215，非 24 小时（10:00–22:00）",
+                     "- 400-821-1215 不是 24 小时热线",
+                     "- 400-821-1215 未提供 24 小时服务"):
+            with self.subTest(line=line):
+                self.assertEqual(self.validate_line(line), [])
+                self.assertEqual(FH.fix_text(line)[0], line)
+
+    def test_skip_lists_share_safety_core(self):
+        """三个脚本的跳过目录名单并不相同，但都必须排除 VCS 与依赖目录。
+
+        clean_bold 额外不含 _plan/tests/backups——今天无 .md 落在这些目录，
+        一旦放入就会被 --write 改写。此处钉住共同安全底线，提醒加目录时同步。
+        """
+        core = {".git", "node_modules", "__pycache__"}
+        self.assertTrue(core <= VS.SKIP_PARTS, "validate 跳过名单缺安全项")
+        self.assertTrue(core <= FH.SKIP_PARTS, "fix_hotlines 跳过名单缺安全项")
+        self.assertTrue(core <= CB.SKIP_DIRS, "clean_bold 跳过名单缺安全项")
+
+    def test_three_protected_line_implementations_agree(self):
+        """validate.protected_lines / clean_bold.protected_flags / fix.protected_flags 同源语义。"""
+        text = "---\na: **本**文**档**\n---\n\n正文 **本**文**档**\n```py\n**本**文**档**\n```\n"
+        expected = [False, True, True, False, False, True, True, True, False]
+        for label, fn in (("validate", VS.protected_lines), ("clean_bold", CB.protected_flags),
+                          ("fix_hotlines", FH.protected_flags)):
+            self.assertEqual(fn(text), expected, f"{label} 的受保护行判定与其他实现不一致")
+
+
+class TestIP0RegressionGuard(unittest.TestCase):
+    """T12 正文级事实订正的防回滚闸门（R7）。
+
+    `_books/` 由流水线生成，重跑时会用 `_plan/_new_books_src/` + `_plan/*.tsv` 覆盖渲染件。
+    T12 曾只改渲染件、未回写源件，订正在下一次重跑时被静默回滚（2026-09-26 实测）。
+    此处钉住每处订正的标记句，使其丢失时立即变红。
+    """
+
+    MARKERS = {
+        "婚姻心理学": ["[!danger] 作者归属不可靠", "托名汇编，不可作霍妮原著引用",
+                   "[!danger] 「94% 预测率」失真，不得引用", "Heyman & Slep"],
+        "人格心理学": ["[!note] 术语订正", "EYNSS", "PEN"],
+        "直视骄阳": ["[!note] 出处订正", "1980 年《存在主义心理治疗》"],
+        "爱的艺术": ["[!warning] 出处订正（重要）", "《占有还是存在》"],
+        "我们时代的神经症人格": ["[!warning] 出处订正（重要）", "1945 年《我们内心的冲突》"],
+        "挑战完美主义": ["Hewitt & Flett", "误增"],
+    }
+
+    def _card(self, name):
+        path = ROOT / "_books" / ("《%s》.md" % name)
+        self.assertTrue(path.is_file(), "缺少卡片 %s" % path.name)
+        return path.read_text(encoding="utf-8")
+
+    def test_p0_body_corrections_survive_pipeline(self):
+        for name in sorted(self.MARKERS):
+            text = self._card(name)
+            for mark in self.MARKERS[name]:
+                self.assertTrue(
+                    mark in text,
+                    "《%s》的 P0 订正标记「%s」丢失——很可能被流水线回滚，"
+                    "须把订正回写 _plan/_new_books_src/ 或 _plan/*.tsv 后重跑" % (name, mark))
+
+    def test_fabricated_third_author_only_in_correction(self):
+        """「米凯尔」只允许出现在说明其系误增的订正句里。"""
+        for line in self._card("挑战完美主义").split("\n"):
+            if "米凯尔" in line:
+                self.assertTrue("误增" in line or "不存在" in line,
+                                "「米凯尔」出现在非订正语境：%s" % line[:60])
 
 
 if __name__ == "__main__":

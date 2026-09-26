@@ -20,6 +20,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# 中文输出须可被 CI / 调用方按 UTF-8 解析：Windows 控制台默认 cp936 会破坏重定向内容
+for _stream in (sys.stdout, sys.stderr):
+    if _stream is not None and hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8")
 SKIP_DIRS = {".git", "node_modules", "__pycache__"}
 CJK = r"\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff"
 # 污染特征：连续 >=2 组「**单字符**」

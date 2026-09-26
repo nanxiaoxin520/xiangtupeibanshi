@@ -17,6 +17,10 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+# 中文输出须可被 CI / 调用方按 UTF-8 解析：Windows 控制台默认 cp936 会破坏重定向内容
+for _stream in (sys.stdout, sys.stderr):
+    if _stream is not None and hasattr(_stream, "reconfigure"):
+        _stream.reconfigure(encoding="utf-8")
 ERRORS: list[str] = []
 WARNINGS: list[str] = []
 # 非「技能内容」目录：测试代码含夹具字面量，不参与内容格式检查
@@ -45,11 +49,14 @@ NAME_ALLOWLIST = {"CHANGELOG.md"}
 # 变更日志会合法引用已删除的文件（如 package.json），不做断链检查
 LINK_CHECK_SKIP = {"CHANGELOG.md"}
 
-# 热线禁用写法（安全关键）
+# 热线禁用写法（安全关键）。后缀用 \d 而非固定 5，避免 12356-55 之类变体漏检。
 FORBIDDEN_HOTLINE_PATTERNS = (
-    (re.compile(r"12356-5"), "「12356-5」为错误号码，应为 12356"),
+    (re.compile(r"12356-\d"), "「12356-数字」为错误号码，全国统一心理援助热线是 12356，无后缀"),
     (re.compile(r"2022\s*新设"), "12356 于 2024-12 由国家卫健委设置，非 2022"),
 )
+# 误称仅在「同一行提到该号码」时判定，与 fix_hotlines 同口径；
+# 否则「××中心生命热线」这类机构名会被判错却无从修正。
+LIMITED_MISNOMER = re.compile(r"(?<!中心)生命热线")
 CANONICAL_HOTLINE_FILE = "references/热线与资源速查.md"
 CANONICAL_HOTLINES = ("12356", "010-82951332", "400-161-9995")
 LIMITED_HOTLINE = "400-821-1215"  # Lifeline Shanghai：英语服务、10:00–22:00
@@ -346,14 +353,18 @@ def check_forbidden_terms() -> None:
 
 
 def check_bold_pollution() -> None:
-    """检测「隔字加粗」污染（**本**文**档**）。"""
+    """检测「隔字加粗」污染（**本**文**档**）。
+
+    行内代码段豁免：文档需用反引号书写该形态的反例，而 clean_bold.py 也不改写
+    代码段——若此处仍报错，就成了一处既判错又无法修复的死结。
+    """
     for path in walk():
         text = read(path)
         flags = protected_lines(text)
         for i, line in enumerate(text.split("\n")):
             if flags[i]:
                 continue
-            if BOLD_SIGNATURE.search(line):
+            if BOLD_SIGNATURE.search(strip_inline_code(line)):
                 err(f"加粗格式污染 in {rel(path)}:{i + 1}")
 
 
@@ -378,7 +389,8 @@ def protected_lines(text: str) -> list[bool]:
 
 # 400-821-1215（Lifeline Shanghai）真实服务时间为 10:00–22:00
 H24 = re.compile(r"24\s*(?:h|小时)", re.IGNORECASE)
-NEGATION = re.compile(r"非\s*$")
+# 否定语境：这些前缀表明「不是 24 小时」，属正确表述
+NEGATION = re.compile(r"(?:非|不是|不再|未|不)\s*(?:提供|含)?\s*$")
 
 
 def check_hotlines() -> None:
@@ -404,14 +416,17 @@ def check_hotlines() -> None:
                     err(f"热线写法错误 in {name}:{i} → {reason}")
             if LIMITED_HOTLINE not in line:
                 continue
+            if LIMITED_MISNOMER.search(line):
+                err(f"热线写法错误 in {name}:{i} → 400-821-1215 的正式名称是 "
+                    f"Lifeline Shanghai，不得写作「生命热线」")
             for m in H24.finditer(line):
                 context = line[max(0, m.start() - 8):m.start()]
                 if NEGATION.search(context):
                     continue  # 「非 24 小时」为正确表述
                 window = line[max(0, m.start() - 40):m.end() + 10]
                 if LIMITED_HOTLINE in window:
-                    err(f"{name}:{i} 将 {LIMITED_HOTLINE} 标为 24 小时"
-                        f"（实为 10:00–22:00）")
+                    err(f"{name}:{i} 将 {LIMITED_HOTLINE} 标为 24 小时（"
+                        f"实为 10:00–22:00，英语服务）")
 
 
 def check_books() -> None:
@@ -432,6 +447,54 @@ def check_books() -> None:
                 err(f"{name}: frontmatter 缺少必需字段 {key}")
         if "未读" not in read(path):
             err(f"{name}: 缺少「重要的未读边界」声明")
+
+
+# ── 多维正交分类的受控词表（与 _plan/_taxonomy_dimensions.tsv 同口径）──
+DIM_NS = {"板块": "domain", "读者": "audience", "取向": "approach", "文化圈": "culture"}
+DIM_VOCAB = {
+    "domain": {"文化与社会", "关系与婚姻", "依恋与创伤", "循证疗法", "理论与诊断",
+               "人格成长", "情绪身心", "发展与育儿", "危机与临终", "特殊人群",
+               "本土临床", "专业规范"},
+    "audience": {"专业", "进阶", "大众自助"},
+    "approach": {"循证操作", "临床指南", "理论建构", "实证研究",
+                 "自助练习", "人文思辨", "本土整合", "叙事纪实"},
+    "culture": {"中国本土", "西方引进", "跨文化"},
+}
+EVIDENCE_GRADES = {"A", "B", "B-", "C", "不评级"}
+
+
+def check_dimensions() -> None:
+    """书卡的多维正交标注：字段齐全、取值受控、与标签同步。
+
+    维度值由 _plan/obsidian_import.py 从 _plan/_taxonomy_dimensions.tsv 注入；
+    本校验器不读 _plan（skill 须能独立成仓），故在此重复受控词表，
+    并由 test_dimension_vocab_matches_source 在 _plan 可见时比对两处是否漂移。
+    """
+    books = ROOT / "_books"
+    if not books.is_dir():
+        return
+    for path in sorted(books.glob("*.md")):
+        if path.name == "README.md" or path.name.startswith("_pubmed"):
+            continue
+        name = rel(path)
+        data, problem = parse_frontmatter(read(path))
+        if data is None:
+            continue                    # frontmatter 本身的问题由 check_books 报
+        tags = data.get("tags", "")
+        for ns, key in DIM_NS.items():
+            val = data.get(key, "").strip().strip('"')
+            if not val:
+                err(f"{name}: 多维分类缺 {key}（{ns}）字段")
+                continue
+            if val not in DIM_VOCAB[key]:
+                err(f"{name}: {key}={val!r} 不在受控词表 {sorted(DIM_VOCAB[key])} 内")
+            if f"{ns}/{val}" not in tags:
+                err(f"{name}: 标签缺「{ns}/{val}」，与 {key}={val} 不同步")
+        ev = data.get("evidence", "").strip().strip('"')
+        if not ev:
+            err(f"{name}: 多维分类缺 evidence 字段")
+        elif ev not in EVIDENCE_GRADES:
+            err(f"{name}: evidence={ev!r} 不在 {sorted(EVIDENCE_GRADES)} 内")
 
 
 def check_versions() -> None:
@@ -490,6 +553,7 @@ def main() -> int:
         check_bold_pollution,
         check_hotlines,
         check_books,
+        check_dimensions,
         check_versions,
         check_manifest,
     ):
