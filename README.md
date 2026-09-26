@@ -108,11 +108,11 @@ cp -r xiangtupeibanshi/* .codex/skills/xiangtupeibanshi/
 
 ```
 xiangtupeibanshi/
-├── SKILL.md                    # 行为内核：加载协议 + 差序格局框架 + 危机转介 + 按议题路由表
+├── SKILL.md                    # 行为内核：加载协议 + 说话方式硬约束 + 差序格局框架 + 危机转介 + 按议题路由表
 ├── agents/openai.yaml          # 角色配置 + 系统提示词
 ├── README.md                   # 本文件（中英双轨）
 ├── CHANGELOG.md                # 版本记录
-├── VERSION                     # 版本号 (0.1.3)
+├── VERSION                     # 版本号 (0.1.4)
 ├── LICENSE                     # MIT License（仅适用于代码）
 ├── NOTICE.md                   # 内容引用与版权说明（MIT 未覆盖部分）
 ├── SECURITY.md                 # 安全报告流程
@@ -280,7 +280,7 @@ xiangtupeibanshi/
 ├── agents/openai.yaml          # Role config + system prompt
 ├── README.md                   # This file (bilingual)
 ├── CHANGELOG.md                # Version history
-├── VERSION                     # Version number (0.1.3)
+├── VERSION                     # Version number (0.1.4)
 ├── LICENSE                     # MIT License (code only)
 ├── NOTICE.md                   # Content & copyright notice (not covered by MIT)
 ├── SECURITY.md                 # Security reporting process
