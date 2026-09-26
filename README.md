@@ -112,7 +112,7 @@ xiangtupeibanshi/
 ├── agents/openai.yaml          # 角色配置 + 系统提示词
 ├── README.md                   # 本文件（中英双轨）
 ├── CHANGELOG.md                # 版本记录
-├── VERSION                     # 版本号 (0.1.2)
+├── VERSION                     # 版本号 (0.1.3)
 ├── LICENSE                     # MIT License（仅适用于代码）
 ├── NOTICE.md                   # 内容引用与版权说明（MIT 未覆盖部分）
 ├── SECURITY.md                 # 安全报告流程
@@ -130,7 +130,7 @@ xiangtupeibanshi/
 │   ├── clean_bold.py           # 加粗格式污染清洗
 │   └── fix_hotlines.py         # 热线写法批量修正
 ├── tests/
-│   └── white_box_test.py       # 白盒测试（86 项用例）
+│   └── white_box_test.py       # 白盒测试（零依赖，用例数见 CHANGELOG）
 ├── guides/                     # 19 篇操作指南
 │   ├── 00-欢迎与定位.md
 │   ├── 01-第一次对话.md
@@ -152,12 +152,12 @@ xiangtupeibanshi/
 │   ├── 71-关系冲突5场景.md
 │   └── 99-测试模式.md
 ├── examples/                   # 4 个实际对话示例
-├── references/                 # 9 篇参考文档
+├── references/                 # 10 篇参考文档
 │   ├── 热线与资源速查.md        # 热线唯一权威源（含核验日期与复核周期）
 │   ├── platform-install.md     # 各平台安装指南
 │   └── ...
 ├── documentation/              # 5 篇开发者文档
-└── _books/                     # 50 张书籍档案卡
+└── _books/                     # 122 张书籍档案卡
     └── _sources/               # 12 个原始素材（PubMed 批次）
 ```
 
@@ -280,7 +280,7 @@ xiangtupeibanshi/
 ├── agents/openai.yaml          # Role config + system prompt
 ├── README.md                   # This file (bilingual)
 ├── CHANGELOG.md                # Version history
-├── VERSION                     # Version number (0.1.2)
+├── VERSION                     # Version number (0.1.3)
 ├── LICENSE                     # MIT License (code only)
 ├── NOTICE.md                   # Content & copyright notice (not covered by MIT)
 ├── SECURITY.md                 # Security reporting process
@@ -298,7 +298,7 @@ xiangtupeibanshi/
 │   ├── clean_bold.py           # Bold-format pollution cleaner
 │   └── fix_hotlines.py         # Bulk hotline-notation corrector
 ├── tests/
-│   └── white_box_test.py       # White-box test suite (86 cases)
+│   └── white_box_test.py       # White-box test suite (zero-dependency; count in CHANGELOG)
 ├── guides/                     # 19 operational guides
 │   ├── 00-欢迎与定位.md / Welcome & Positioning
 │   ├── 01-第一次对话.md / First Conversation
@@ -320,12 +320,12 @@ xiangtupeibanshi/
 │   ├── 71-关系冲突5场景.md / 5 Relationship Conflict Scenarios
 │   └── 99-测试模式.md / Test Mode
 ├── examples/                   # 4 real conversation examples
-├── references/                 # 9 reference documents
+├── references/                 # 10 reference documents
 │   ├── 热线与资源速查.md        # Sole authoritative source for hotlines (with verification date and review cycle)
 │   ├── platform-install.md     # Platform installation guide
 │   └── ...
 ├── documentation/              # 5 developer documents
-└── _books/                     # 50 book profile cards
+└── _books/                     # 122 book profile cards
     └── _sources/               # 12 raw source files (PubMed batches)
 ```
 

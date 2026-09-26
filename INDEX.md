@@ -13,7 +13,7 @@
 | P1 | `references/README.md` | 参考文档导航 |
 | P1 | `references/评估量表速查.md` | 工具（PHQ-9、GAD-7 等） |
 | P1 | `references/热线与资源速查.md` | 中国本土热线 |
-| P1 | `references/书籍档案索引.md` | 50+ 本书索引 |
+| P1 | `references/书籍档案索引.md` | 122 本书索引 |
 | P1 | `references/关系伤害分析SOP.md` | 关系伤害分析 |
 | P2 | `_books/README.md` | 书籍档案索引（详细） |
 | P2 | `documentation/README.md` | 文档导航 |
@@ -23,12 +23,12 @@
 
 | 维度 | 数量 |
 |---|---|
-| 书籍档案卡 | 50 本 |
+| 书籍档案卡 | 122 本 |
 | 指南（guides） | 19 篇 |
 | 例子（examples） | 4 个 |
-| 参考文档（references） | 9 篇 |
+| 参考文档（references） | 10 篇 |
 | 文档（documentation） | 5 篇 |
-| 学术信息批次（_pubmed_batch*.md） | 12 个 |
+| 学术信息批次（_pubmed_*.md） | 12 个 |
 
 ## 验证状态
 

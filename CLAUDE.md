@@ -27,29 +27,39 @@ xiangtupeibanshi/
 │   ├── 50-自我照护.md
 │   ├── 60-中国心理学会7大原则.md
 │   ├── 70-关系伤害分析.md
-│   └── 71-关系冲突5场景.md
+│   ├── 71-关系冲突5场景.md
+│   └── 99-测试模式.md
 ├── examples/             # 实际对话例子（4个）
 │   ├── 01-情绪低落.md
 │   ├── 02-关系探索.md
 │   ├── 03-危机时刻.md
 │   ├── 04-关系伤害.md
 │   └── README.md
-├── references/           # 参考文档（9篇）
+├── references/           # 参考文档（10篇）
 │   ├── 评估量表速查.md
 │   ├── 热线与资源速查.md
 │   ├── 书籍档案索引.md
+│   ├── 书籍使用规范.md
 │   ├── 中外文化对照.md
 │   ├── 治疗流派速查.md
 │   ├── 关系伤害分析SOP.md
 │   ├── 验证脚本说明.md
+│   ├── 版本介绍.md
+│   ├── platform-install.md
 │   └── README.md
 ├── scripts/              # 工具脚本
-│   └── validate_skill.py # 自动验证脚本
-├── _books/               # 书籍档案卡（50张）
+│   ├── validate_skill.py # 自动验证脚本（CI 硬闸门）
+│   ├── clean_bold.py     # 清理「隔字加粗」污染
+│   └── fix_hotlines.py   # 热线写法批量修正
+├── tests/
+│   └── white_box_test.py # 白盒测试套件（零依赖 unittest）
+├── docs/
+│   └── manifest.yaml     # 计数与预算的唯一事实源
+├── _books/               # 书籍档案卡（122张）
 │   ├── README.md
 │   ├── 《自卑与超越》.md
 │   ├── 《蛤蟆先生去看心理医生》.md
-│   └── ...（共50张）
+│   └── ...（共122张）
 ├── documentation/        # 内部文档
 │   ├── relationship-harm-sop.md
 │   └── README.md
@@ -110,16 +120,18 @@ python scripts/validate_skill.py
 # xiangtupeibanshi validation passed
 ```
 
-### 验证内容
+### 验证内容（12 类，见 `references/验证脚本说明.md`）
 
-- `SKILL.md` 存在且 ≤ 200 行 / ≤ 8000 字符
-- `agents/openai.yaml` 存在
-- `guides/` 所有必需文件存在
-- `references/` 存在
-- 无历史残留术语（白名单：CHANGELOG.md, CONTRIBUTING.md, README.md）
-- 无断链（本地链接指向存在的文件）
-- 无 `[PLACEHOLDER]` 占位符
-- 所有 `_books/` 档案卡有正确的 Front Matter
+- `SKILL.md` frontmatter 键须恰为 name + description；≤200 行 / ≤8000 字符 / ≤7000 近似 token
+- 内核结构标记齐全（加载协议、角色、创伤知情、差序格局、5 步流程、危机转介、伦理边界、按议题查找、限制），且路由表指向真实存在的 guides
+- 13 个必需路径 + 19 篇必需 guides 存在
+- 无断链（Markdown 链接、反引号路径、表格内裸文件名三类；`[[双链]]` 不检查）
+- 无 `[TODO]` / `[PLACEHOLDER]` / `{{ 模板变量 }}` / FIXME / XXX 占位符
+- 命名禁用变体（仅 `CHANGELOG.md` 豁免）与历史残留术语（另豁免 `CONTRIBUTING.md`、`README.md`）
+- 无「隔字加粗」污染（frontmatter、代码块、行内代码段豁免）
+- 热线正确性：权威源须含 `verified_at` 与三个核心号码；错误后缀/错误年份/误称/服务时间标注均有检查
+- `_books/` 每张卡有 `title` / `author` / `type` 与「未读边界」声明
+- `VERSION` 出现在 `CHANGELOG.md`；`docs/manifest.yaml` 计数与文件系统一致
 
 ## 5. 测试流程
 
@@ -127,12 +139,20 @@ python scripts/validate_skill.py
 # 运行验证
 python scripts/validate_skill.py
 
+# 运行白盒测试套件（改 scripts/ 或 tests/ 后必跑）
+python tests/white_box_test.py
+
 # 检查 SKILL.md 内容（快速预览）
 cat SKILL.md | head -50
 
 # 检查所有指南文件存在
 ls guides/*.md
 ```
+
+白盒套件分五层：A 校验器 12 类检查的通过与失败分支、B `clean_bold.py`、
+C `fix_hotlines.py`、E 跨脚本口径一致性、D 真实仓库集成验收。
+「校验判错 ⇔ 修正器改写」是 E 层的核心不变量——两个脚本对同一条规则的
+判定必须一致，否则会出现「跑一次 --write 仍然 CI 红」。
 
 ## 6. 关键注意事项
 
