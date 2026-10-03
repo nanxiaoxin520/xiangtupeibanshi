@@ -2432,5 +2432,43 @@ class TestA22TagNamespace(FixtureCase):
         self.assertClean(VS.check_tag_namespace, "自由标注可嵌套")
 
 
+class TestA23NoLocalPaths(FixtureCase):
+    """本机路径泄露（check_no_local_paths）：写死的用户目录即红，占位符与通用写法放行。
+
+    起因：`references/platform-install.md` 曾写了开发机的绝对用户目录 5 处
+    （2026-10-03 修掉）。这类字符串像正常安装说明，review 极易放过，而后果是永久的。
+    """
+
+    def test_baseline_clean(self):
+        self.assertClean(VS.check_no_local_paths, "本机路径")
+
+    def test_windows_user_dir_detected(self):
+        self.write("guides/README.md",
+                   "# Guides 导航\n\n" + "\n".join("- %s" % n for n in REQUIRED_GUIDE_NAMES)
+                   + "\n\n见 `C:\\Users\\someone\\npm-global\\x`\n")
+        self.assertErrors(VS.check_no_local_paths, "Windows 用户目录", "本机路径泄露")
+
+    def test_unix_home_detected(self):
+        self.write("guides/README.md",
+                   "# Guides 导航\n\n" + "\n".join("- %s" % n for n in REQUIRED_GUIDE_NAMES)
+                   + "\n\n见 /home/someone/skills\n")
+        self.assertErrors(VS.check_no_local_paths, "Unix 家目录", "本机路径泄露")
+
+    def test_placeholder_allowed(self):
+        """阴性对照：`C:\\Users\\<用户名>` 是教读者填自己的路径，不是泄露。"""
+        self.write("guides/README.md",
+                   "# Guides 导航\n\n" + "\n".join("- %s" % n for n in REQUIRED_GUIDE_NAMES)
+                   + "\n\n目录形如 `C:\\Users\\<用户名>`，不在就先建。\n")
+        self.assertClean(VS.check_no_local_paths, "占位符")
+
+    def test_generic_home_usage_allowed(self):
+        """阴性对照：`$HOME/npm-global/...` 与 `~/...` 是通用安装写法。"""
+        self.write("guides/README.md",
+                   "# Guides 导航\n\n" + "\n".join("- %s" % n for n in REQUIRED_GUIDE_NAMES)
+                   + "\n\ncp -r x/ \"$HOME/npm-global/node_modules/@d/x/\"\n"
+                   "cp -r x/ ~/.claude/skills/x/\n")
+        self.assertClean(VS.check_no_local_paths, "通用安装路径")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

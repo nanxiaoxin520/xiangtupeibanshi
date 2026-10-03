@@ -127,7 +127,7 @@ xiangtupeibanshi/
 ├── docs/
 │   └── manifest.yaml           # 内容计数唯一事实源
 ├── scripts/
-│   ├── validate_skill.py       # 22 类内容校验
+│   ├── validate_skill.py       # 23 类内容校验
 │   ├── clean_bold.py           # 加粗格式污染清洗
 │   └── fix_hotlines.py         # 热线写法批量修正
 ├── tests/
@@ -298,7 +298,7 @@ xiangtupeibanshi/
 ├── docs/
 │   └── manifest.yaml           # Single source of truth for content counts
 ├── scripts/
-│   ├── validate_skill.py       # 22 categories of content validation
+│   ├── validate_skill.py       # 23 categories of content validation
 │   ├── clean_bold.py           # Bold-format pollution cleaner
 │   └── fix_hotlines.py         # Bulk hotline-notation corrector
 ├── tests/

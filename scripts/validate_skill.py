@@ -1114,6 +1114,48 @@ def check_tag_namespace() -> None:
                     f"每卡只准一个（四个受控维度互斥）")
 
 
+# 机器本地痕迹：这些字符串一旦进了仓库就随每次 clone 扩散，且本仓是公开的。
+# 起因：`references/platform-install.md` 的 DSH 安装示例里写了开发机的绝对用户目录
+# （5 处，2026-10-03 修掉），同一段里 Claude Code / Codex 两节都用 `~/`——即那段
+# 属笔误而非安装要求。gitleaks 只查密钥、不查路径，故须自建这一道。
+#
+# 三条判据边界（都不是为了放过真泄露，均为 2026-10-03 反证实测逼出来的）：
+#   ① 用户目录段只取「路径合法的名字」：`[\w.-]+` 而非贪婪的 `[^\s]+`。
+#      否则中文文档里紧跟的反引号与逗号会被吞进来（`C:\Users\<用户名>` 后面的
+#      `` `，目录不在就先建。`` 会并进用户名，占位符判定随之失效）；而 Windows
+#      用户名里可以带撇号，贪婪匹配会把它截掉一截——**判据本身不能再拿真实
+#      姓名举例**，故此处只描述形状。
+#   ② `<用户名>`／`<your-name>` 这类**占位符**不算泄露——它在教读者填自己的路径。
+#   ③ `npm-global/node_modules` 本身**不是**机器身份：`$HOME/npm-global/...`
+#      是通用安装写法（README 里就是给读者的建议）。只判「写死的用户目录」、
+#      不判目录名——否则为拦一条泄露而让正确的安装说明全部报错。
+LOCAL_PATH_PATTERNS = (
+    (re.compile(r"[A-Za-z]:[\\/]Users[\\/][\w.\-]+", re.I), "Windows 用户目录绝对路径"),
+    (re.compile(r"[A-Za-z]:[\\/](?:Users|home)[\\/][\w.\-]+", re.I), "Windows 用户目录绝对路径"),
+    (re.compile(r"/(?:home|Users)/[\w.\-]{2,}", re.I), "Unix 家目录绝对路径"),
+)
+# 占位符：用户目录段形如 <用户名> 时，它是「请填你自己的名字」，不是泄露。
+LOCAL_PATH_PLACEHOLDER = re.compile(r"^<[^>]+>$")
+
+
+def check_no_local_paths() -> None:
+    """文档里不得出现开发机的绝对路径或本地安装目录。
+
+    为什么不靠人工扫：这类字符串看起来像正常的安装说明，review 时极易放过，
+    而它的后果是永久的（公开仓库里删掉也已被 clone 走）。故用机器守住。
+    """
+    for path in walk(("*.md", "*.yaml", "*.yml"), extra=TEXT_EXTRA):
+        name = rel(path)
+        for i, line in enumerate(read(path).split("\n"), start=1):
+            for pat, label in LOCAL_PATH_PATTERNS:
+                for m in pat.finditer(line):
+                    seg = m.group(1) if m.groups() else ""
+                    if seg and LOCAL_PATH_PLACEHOLDER.match(seg):
+                        continue          # 占位符，不是真实身份
+                    err(f"本机路径泄露（{label}）in {name}:{i}: {m.group(0)[:60]!r}"
+                        f"——文档里请用 ~/ 或环境变量占位")
+
+
 def check_versions() -> None:
     version_file = ROOT / "VERSION"
     if not version_file.is_file():
@@ -1532,6 +1574,7 @@ CHECKS = (
     check_index_plane,
     check_comfort_stance,
     check_tag_namespace,
+    check_no_local_paths,
 )
 
 

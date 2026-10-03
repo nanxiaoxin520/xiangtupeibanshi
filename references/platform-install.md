@@ -6,10 +6,10 @@
 
 ### 路径说明
 
-DSH 的 Skill 目录位于 DSH checkout 下：
+DSH 的 Skill 目录位于 DSH checkout 下（`$DSH_HOME` 指该目录，具体位置随安装方式而变）：
 
 ```
-C:\Users\wu'xin\npm-global\node_modules\@deepseek-ai\dsh\
+$DSH_HOME/
 └── skills\
     └── xiangtupeibanshi\
         ├── SKILL.md
@@ -25,14 +25,14 @@ C:\Users\wu'xin\npm-global\node_modules\@deepseek-ai\dsh\
 ### 安装步骤
 
 ```bash
-# 1. 确保 DSH 已安装
-# DSH checkout: C:\Users\wu'xin\npm-global\node_modules\@deepseek-ai\dsh
+# 1. 确保 DSH 已安装，并把 DSH checkout 目录记进环境变量
+export DSH_HOME="<你的 DSH 安装目录>"
 
 # 2. 复制 Skill 到 DSH skills 目录
-cp -r xiangtupeibanshi/ "C:/Users/wu'xin/npm-global/node_modules/@deepseek-ai/dsh/skills/xiangtupeibanshi/"
+cp -r xiangtupeibanshi/ "$DSH_HOME/skills/xiangtupeibanshi/"
 
 # 3. 验证安装
-ls "C:/Users/wu'xin/npm-global/node_modules/@deepseek-ai/dsh/skills/xiangtupeibanshi/SKILL.md"
+ls "$DSH_HOME/skills/xiangtupeibanshi/SKILL.md"
 
 # 4. 在 DSH 对话中使用
 # 输入 $xiangtupeibanshi 启用 Skill
@@ -138,7 +138,7 @@ cat SKILL.md
 
 ```bash
 # DSH
-rm -rf "C:/Users/wu'xin/npm-global/node_modules/@deepseek-ai/dsh/skills/xiangtupeibanshi/"
+rm -rf "$DSH_HOME/skills/xiangtupeibanshi/"
 
 # Claude Code
 rm -rf ~/.claude/skills/xiangtupeibanshi/
