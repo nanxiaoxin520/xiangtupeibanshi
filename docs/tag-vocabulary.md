@@ -90,9 +90,14 @@ read_when:
 | 想改什么 | 改哪里 | 之后必须做什么 | 有门禁吗 |
 |---|---|---|---|
 | 某张卡的**受控维度** | `_plan/_taxonomy_dimensions.tsv` 对应列 | 重跑流水线注入 | 有（`check_dimensions` ＋ `check_tag_namespace`） |
-| 受控词表本身**加/删取值** | `validate_skill.py` 的 `DIM_VOCAB` **＋** 本文件 §2 **＋** `_taxonomy_dimensions.tsv` | 三处同步 | 有（`TestDimensionVocabMatchesSource` 比对仓内与 `_plan/`，两处都不可见时报红而非 skip） |
+| 受控词表本身**加/删取值** | `validate_skill.py` 的 `DIM_VOCAB` **＋** 本文件 §2 **＋** `_taxonomy_dimensions.tsv` | 三处同步 | 有（`test_dimension_vocab_matches_repo_sources` 比仓内两处，恒定生效；`test_dimension_vocab_matches_pipeline_source` 比仓外 TSV，仅本地跑流水线时执行） |
 | 某张卡的**自由标注** | 直接改卡片 `tags` | 若该卡在 `_plan/_new_books_src/` 有源件，同步改源件 | 有（`check_tag_namespace` 守命名空间与段数形态） |
 | 新增一个**自由标注命名空间** | 本文件 §3 表 ＋ 校验器 `FREE_NS` | 两处同步 | 有 |
+
+> **CI 上比的是仓内两处**（校验器 ↔ 本文 §2／§3）。第三处 `_taxonomy_dimensions.tsv` 在仓外，
+> CI 不 checkout 它，故那条比对在 CI 上显式 skip——不是「漏检」，是它本就不属线上范围。
+> 改受控词表时**三处仍须同步**，少改 `_plan/` 那处的后果是流水线注入的值与本文对不上，
+> 会在本地跑 `…_pipeline_source` 时报红。
 
 > ⚠️ **不要直接改卡片里的受控维度字段**：`_books/` 是派生产物，下一次流水线会覆盖（见
 > `docs/taxonomy.md` §5）。
