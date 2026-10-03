@@ -23,6 +23,14 @@
 
 ## [Unreleased]
 
+### 修复（v0.1.5 首发后 CI 红灯：词表比对在 CI 上必然失败）
+
+- **2026-10-03 首发后 GitHub Actions 报 `failures=1`**（`test_dimension_vocab_matches_data_source`）。根因是上一版把「仓内事实源 ↔ 校验器」与「仓外 TSV ↔ 校验器」**挤在同一个测试里**：前者两个比对对象都在仓内、任何环境下都该生效，却在 `_plan/_taxonomy_dimensions.tsv` 的 `assertTrue` 上被连坐——而 CI 上 `actions/checkout` 只带本仓，`_plan/` 必然不存在。**这不是「CI 环境特殊」，是判据设计错误**：把仓内守护绑在了仓外依赖上。
+- **拆成两条**：`test_dimension_vocab_matches_repo_sources` 比仓内两处（**恒定生效**，任何环境下都跑，是 CI 上唯一的词表守护）；`test_dimension_vocab_matches_pipeline_source` 比仓外 TSV，`_plan/` 不可见时**显式 skip 并写明理由**——它守的是「本地流水线入口没丢」，本就不属 CI 范围，不该让线上红灯替本地环境报错。这与「不许为让 CI 变绿而静默 skip」不冲突：**该 skip 的是仓外项，仓内守护一条都没让**。
+- **反证 6/6**：① 无 `_plan` 环境下把仓内事实源改坏（删一个受控取值／删整行）两条**都报红**，证明仓内守护没被削弱；② 无 `_plan` 时仓外那条是**显式 skip 而非静默 ok**；③ 本地环境下两条都真跑；④ 本地环境下真把 TSV 改坏（`循证操作`→`写实操作`）**报红**。另建 CI 模拟（仓库复制到无 `_plan` 的干净目录）实测 `rc=0`。
+- **本批两处自造缺陷**：① 反证脚本连续三次把副本放错位置（`tmp/xiangtupeibanshi` 嵌一层 → `ROOT.parent` 落在临时目录 → 永远 skip），误判成「假绿」；查清后发现模块 `ROOT = Path(__file__).parents[1]`，**副本必须直接是 `qikan2/` 的子目录**才命中真实 `_plan`。② 改 `run()` 时把 `ROOT` 还原写在 `finally` 里、读取发生在方法体内，一度让我以为 ROOT 切换没生效。**报 0 项／skip 先怀疑判据与脚本，别急着改产品代码。**
+- 白盒 285 → **286 例**（一条拆两条，净 +1）。
+
 ### 修复（本机路径泄露 ＋ 新增第 23 类门禁防复发）
 
 - **`references/platform-install.md` 的 DSH 安装示例里写了开发机的绝对用户目录 5 处**（`C:\Users\<用户名>\npm-global\node_modules\@deepseek-ai\dsh\…`）。该文件是 v0.1.1 批次（`c729332`）留下的历史问题，**本次发版前扫描才发现**；同一文件里 Claude Code 与 Codex 两节都用 `~/`，即那段属笔误而非安装要求。已全部改为环境变量占位（`export DSH_HOME="<你的 DSH 安装目录>"`，命令里用 `"$DSH_HOME/skills/…"`）。**这类泄露的后果是永久的**：公开仓库里事后删除也已被 clone 走。

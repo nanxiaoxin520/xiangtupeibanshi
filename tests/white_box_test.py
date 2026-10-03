@@ -1718,20 +1718,19 @@ class TestDIntegration(unittest.TestCase):
         self.assertIsNotNone(m, "docs/manifest.yaml 缺少 version 字段")
         self.assertEqual(m.group(1), version, "manifest 版本与 VERSION 不一致")
 
-    def test_dimension_vocab_matches_data_source(self):
-        """受控词表须三处一致：校验器 / 仓内事实源 / 生成侧 TSV。
+    def test_dimension_vocab_matches_repo_sources(self):
+        """受控词表在**仓内**须两处一致：校验器 DIM_VOCAB ↔ 仓内事实源 docs/tag-vocabulary.md。
 
-        2026-10-03 改判：`_plan/` 不可见时**报红而非 skip**。此前是 skipTest，
-        于是 CI 上这条比对永不执行，「170 用例全绿」实际并不覆盖 122 张卡的
-        受控词表——本地全绿被误读成「线上有守护」。受控词表已搬进
-        docs/tag-vocabulary.md（仓内 SSOT），即便 `_plan/` 缺失也仍可校验前两处。
+        这条恒定生效，不依赖仓外任何文件——CI 上只 checkout 本仓时它是唯一的
+        词表守护。2026-10-03 之前它与「仓外 TSV 比对」挤在同一个测试里，
+        结果 `_plan/` 在 CI 上不可见时**连这条一起失效**（CI 实测 failures=1）。
+        拆开之后：仓内守护恒在，仓外生成侧的问题归 TestA…PipelineSource 一条。
         """
         doc = ROOT / "docs" / "tag-vocabulary.md"
         self.assertTrue(doc.is_file(), "缺仓内词表事实源 docs/tag-vocabulary.md")
         vocab_doc = doc.read_text(encoding="utf-8")
-        keys = ["domain", "audience", "approach", "culture"]
 
-        # 仓内事实源 §2 的表格：`| `板块/` | `domain` | 12 | 取值1 · 取值2 … |`
+        # §2 的表格：`| `板块/` | `domain` | 12 | 取值1 · 取值2 … |`
         for ns, key in VS.DIM_NS.items():
             m = re.search(r"^\|\s*`" + re.escape(ns) + r"/`\s*\|\s*`" + key +
                           r"`\s*\|[^|]*\|([^|]*)\|\s*$", vocab_doc, re.MULTILINE)
@@ -1740,17 +1739,26 @@ class TestDIntegration(unittest.TestCase):
             self.assertEqual(doc_vals, VS.DIM_VOCAB[key],
                              f"{key} 词表漂移：仓内事实源 {sorted(doc_vals)} vs "
                              f"校验器 {sorted(VS.DIM_VOCAB[key])}")
-        # 自由标注命名空间也须在仓内事实源 §3 有登记（校验器 check_tag_namespace 逐卡再查一遍）
+        # §3 的自由标注命名空间也须登记（check_tag_namespace 逐卡再查一遍）
         for ns in VS.FREE_NS:
             self.assertIn(f"`{ns}/`", vocab_doc,
                           f"docs/tag-vocabulary.md §3 未登记自由命名空间 `{ns}/`")
 
-        # 生成侧：仓库外的 TSV 仍须与前两处一致
+    def test_dimension_vocab_matches_pipeline_source(self):
+        """生成侧 TSV 须与校验器词表一致——**仅在 `_plan/` 可见时**（本地有全套流水线时）。
+
+        这是仓外的第三处，不属于 CI 的守护范围：CI 只 checkout 本仓，跑流水线的人
+        在本地。所以这里用 skipTest 是**正确的**——它守的是「本地流水线入口没丢」，
+        丢不丢由本地这条命令自己判断，不该让线上红灯替本地环境报错。
+
+        刻意不使用 skipTest 的那一条是 test_dimension_vocab_matches_repo_sources：
+        它的两个比对对象都在仓内，任何环境下都必须生效。
+        """
         src = ROOT.parent / "_plan" / "_taxonomy_dimensions.tsv"
-        self.assertTrue(src.is_file(),
-                        "_plan/_taxonomy_dimensions.tsv 不可见：词表生成侧无法核对。"
-                        "本仓已把它降为生成侧、受控词表以 docs/tag-vocabulary.md 为准，"
-                        "但 TSV 消失意味着流水线入口丢失，须查明后再放行。")
+        if not src.is_file():
+            self.skipTest("_plan/_taxonomy_dimensions.tsv 不在本仓（CI/独立成仓场景）——"
+                          "仓内词表守护由 test_dimension_vocab_matches_repo_sources 负责")
+        keys = ["domain", "audience", "approach", "culture"]
         found = {k: set() for k in keys}
         books = 0
         for ln in src.read_text(encoding="utf-8-sig").split("\n"):
