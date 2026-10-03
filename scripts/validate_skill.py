@@ -1281,7 +1281,30 @@ def check_index_plane() -> None:
     这些漂移没有任何一道闸能发现。
     计数一律由脚本现算（`glob` 与 `len(CHECKS)`），**不读文档里的数字**，
     这样文档与代码不会再各自漂移。
+
+    另外守 MOC 的**表格结构**：2026-10-03 我改标签串的脚本把某列整个替换掉，
+    9 行表格被截成「|、标签串」并丢掉尾列，门禁全绿没报错——因为本函数只看
+    「卡名有没有被收录」，不看表格长什么样。故按**同一张表内列数须一致**来判。
     """
+    moc = ROOT / "_books" / "README.md"
+    if moc.is_file():
+        # 按「连续表格行」切段：非表格行即断段。段内以第一行的列数为基准。
+        block: list[tuple[int, int]] = []
+        def _flush(rows: list[tuple[int, int]]) -> None:
+            if len(rows) < 2:
+                return
+            want = rows[0][1]
+            bad = [(i, n) for i, n in rows if n != want]
+            if bad:
+                err(f"索引面：_books/README.md 第 {rows[0][0]} 行起的表格列数不一致"
+                    f"（首行 {want} 根管，另 {len(bad)} 行不同）：{bad[:5]}")
+        for i, line in enumerate(read(moc).split("\n"), start=1):
+            if line.strip().startswith("|"):
+                block.append((i, line.strip().count("|")))
+            else:
+                _flush(block)
+                block = []
+        _flush(block)
     for d in INDEX_PLANE_DIRS:
         nav = ROOT / d / "README.md"
         if not nav.is_file():
