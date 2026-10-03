@@ -2439,6 +2439,16 @@ class TestA22TagNamespace(FixtureCase):
         self._put(text)
         self.assertClean(VS.check_tag_namespace, "自由标注可嵌套")
 
+    def test_retired_culture_namespace_rejected(self):
+        """「文化」已于 2026-10-03 撤出 FREE_NS：写回来必须报红，防止旧口径复活。
+
+        起因：该命名空间与受控维度「文化圈」重叠，实测 13 处标签里 9 处纯冗余。
+        它的细分部分（差序格局／乡土中国／农村家庭）已改挂既有的「主题/」。
+        """
+        text = self._card().replace("主题/关系", "主题/关系, 文化/中国本土")
+        self._put(text)
+        self.assertErrors(VS.check_tag_namespace, "已撤除的文化/", "既不在受控维度")
+
 
 class TestA23NoLocalPaths(FixtureCase):
     """本机路径泄露（check_no_local_paths）：写死的用户目录即红，占位符与通用写法放行。
