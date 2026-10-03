@@ -41,3 +41,7 @@ Thumbs.db
 *.log
 audit-*.json
 tmp/
+
+# 用户长期记忆档案（落点在用户主目录，绝不允许出现在仓库内）
+.xiangtupeibanshi/
+memory/

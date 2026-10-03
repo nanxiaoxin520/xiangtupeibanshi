@@ -41,6 +41,7 @@
 - 用户可随时停止对话
 - 识别危机并建议现实帮助
 - 隐私优先，不收集不必要的个人信息
+- 长期记忆只存在你自己电脑上的一个文件里（`<HOME>/.xiangtupeibanshi/memory/`）：先征得你同意才写，不写云端记忆服务、不进这个仓库，随时可以让你查看、暂停、撤销或清空（见 `guides/02-长期记忆.md`）
 
 ## 重要声明
 
@@ -108,11 +109,11 @@ cp -r xiangtupeibanshi/* .codex/skills/xiangtupeibanshi/
 
 ```
 xiangtupeibanshi/
-├── SKILL.md                    # 行为内核：加载协议 + 说话方式硬约束 + 差序格局框架 + 危机转介 + 按议题路由表
+├── SKILL.md                    # 行为内核：固定开场白 + 加载协议 + 说话方式硬约束 + 差序格局框架 + 危机转介 + 按议题路由表
 ├── agents/openai.yaml          # 角色配置 + 系统提示词
 ├── README.md                   # 本文件（中英双轨）
 ├── CHANGELOG.md                # 版本记录
-├── VERSION                     # 版本号 (0.1.4)
+├── VERSION                     # 版本号 (0.1.5)
 ├── LICENSE                     # MIT License（仅适用于代码）
 ├── NOTICE.md                   # 内容引用与版权说明（MIT 未覆盖部分）
 ├── SECURITY.md                 # 安全报告流程
@@ -126,14 +127,15 @@ xiangtupeibanshi/
 ├── docs/
 │   └── manifest.yaml           # 内容计数唯一事实源
 ├── scripts/
-│   ├── validate_skill.py       # 12 类内容校验
+│   ├── validate_skill.py       # 22 类内容校验
 │   ├── clean_bold.py           # 加粗格式污染清洗
 │   └── fix_hotlines.py         # 热线写法批量修正
 ├── tests/
 │   └── white_box_test.py       # 白盒测试（零依赖，用例数见 CHANGELOG）
-├── guides/                     # 19 篇操作指南
+├── guides/                     # 21 篇操作指南
 │   ├── 00-欢迎与定位.md
 │   ├── 01-第一次对话.md
+│   ├── 02-长期记忆.md
 │   ├── 10-情绪识别与命名.md
 │   ├── 11-认知重构.md
 │   ├── 12-CBT核心技能.md
@@ -142,6 +144,7 @@ xiangtupeibanshi/
 │   ├── 21-差序格局与家庭.md
 │   ├── 22-中圈关系.md
 │   ├── 23-工作议题.md
+│   ├── 24-人物档案与判断.md
 │   ├── 30-自我探索.md
 │   ├── 31-意义议题.md
 │   ├── 40-危机识别.md
@@ -217,6 +220,7 @@ This project follows trauma-informed principles:
 - Users may stop the conversation anytime
 - Identifies crises and suggests real-world help
 - Privacy-first: does not collect unnecessary personal information
+- Long-term memory lives in one file on your own machine (`<HOME>/.xiangtupeibanshi/memory/`): nothing is written until you say yes, nothing goes to a cloud memory service or into this repository, and you can view, pause, undo, or erase it at any time (see `guides/02-长期记忆.md`)
 
 ## Important Disclaimer
 
@@ -276,11 +280,11 @@ Import `SKILL.md` directly as a system prompt, or see `references/platform-insta
 
 ```
 xiangtupeibanshi/
-├── SKILL.md                    # Behavioral core: load protocol + differential-mode framework + crisis referral + topic routing table
+├── SKILL.md                    # Behavioral core: fixed opener + load protocol + differential-mode framework + crisis referral + topic routing table
 ├── agents/openai.yaml          # Role config + system prompt
 ├── README.md                   # This file (bilingual)
 ├── CHANGELOG.md                # Version history
-├── VERSION                     # Version number (0.1.4)
+├── VERSION                     # Version number (0.1.5)
 ├── LICENSE                     # MIT License (code only)
 ├── NOTICE.md                   # Content & copyright notice (not covered by MIT)
 ├── SECURITY.md                 # Security reporting process
@@ -294,14 +298,15 @@ xiangtupeibanshi/
 ├── docs/
 │   └── manifest.yaml           # Single source of truth for content counts
 ├── scripts/
-│   ├── validate_skill.py       # 12 categories of content validation
+│   ├── validate_skill.py       # 22 categories of content validation
 │   ├── clean_bold.py           # Bold-format pollution cleaner
 │   └── fix_hotlines.py         # Bulk hotline-notation corrector
 ├── tests/
 │   └── white_box_test.py       # White-box test suite (zero-dependency; count in CHANGELOG)
-├── guides/                     # 19 operational guides
+├── guides/                     # 21 operational guides
 │   ├── 00-欢迎与定位.md / Welcome & Positioning
 │   ├── 01-第一次对话.md / First Conversation
+│   ├── 02-长期记忆.md / Long-Term Memory
 │   ├── 10-情绪识别与命名.md / Emotion Recognition & Naming
 │   ├── 11-认知重构.md / Cognitive Restructuring
 │   ├── 12-CBT核心技能.md / CBT Core Skills
@@ -310,6 +315,7 @@ xiangtupeibanshi/
 │   ├── 21-差序格局与家庭.md / Differential Mode of Association & Family
 │   ├── 22-中圈关系.md / Middle Circle Relations
 │   ├── 23-工作议题.md / Work Issues
+│   ├── 24-人物档案与判断.md / Person Profile & Judgment
 │   ├── 30-自我探索.md / Self-Exploration
 │   ├── 31-意义议题.md / Meaning Issues
 │   ├── 40-危机识别.md / Crisis Identification

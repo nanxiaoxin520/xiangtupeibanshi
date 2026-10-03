@@ -28,8 +28,20 @@ SKIP_DIRS = {".git", "node_modules", "__pycache__"}
 CJK = r"\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff"
 # 污染特征：连续 >=2 组「**单字符**」
 SIGNATURE = re.compile(rf"\*\*(?:[^\s*]\*\*){{2,}}")
+# 第二种形态：被双字词隔开的单字加粗（**不**替来访者**做**决定），SIGNATURE 看不见。
+# 与 validate_skill.bold_polluted 同口径，改动须两处同步——否则校验判错而修正器不动。
+SPAN = re.compile(r"\*\*(.+?)\*\*")
+CJK_ONE = re.compile(rf"[{CJK}]")
 FENCE = re.compile(r"^\s*(```|~~~)")
 INLINE = re.compile(r"`[^`]*`")
+
+
+def polluted(line: str) -> bool:
+    """两种污染形态取并集；只加粗单个拉丁字母（**P**sychoticism）属正常排版。"""
+    if SIGNATURE.search(line):
+        return True
+    return sum(1 for m in SPAN.finditer(line)
+               if len(m.group(1)) == 1 and CJK_ONE.fullmatch(m.group(1))) >= 2
 
 
 def protected_flags(text: str) -> list[bool]:
@@ -56,15 +68,13 @@ def code_spans(line: str) -> list[tuple[int, int]]:
     return [(m.start(), m.end()) for m in INLINE.finditer(line)]
 
 
-def inside(pos: int, spans: list[tuple[int, int]]) -> bool:
-    return any(a <= pos < b for a, b in spans)
-
-
 def clean_line(line: str) -> tuple[str, bool, bool]:
     """返回 (新行, 是否命中污染, 是否仍有残留)。"""
     spans = code_spans(line)
-    hits = [m for m in SIGNATURE.finditer(line) if not inside(m.start(), spans)]
-    if not hits:
+    masked = line
+    for a, b in reversed(spans):        # 代码段用中性字符遮住，避免与 ** 拼出假阳性
+        masked = masked[:a] + "q" * (b - a) + masked[b:]
+    if not polluted(masked):
         return line, False, False
     pieces, last = [], 0
     for a, b in spans:
