@@ -23,6 +23,32 @@
 - 不鼓励你依赖 AI，也不要求你透露隐私
 - 不强迫你回忆创伤，不评判你的家庭与选择
 
+### 🧠 长期记忆：先征得同意，再决定记不记
+
+同一场对话里你说过的话，散场就忘了。下次再来，它要从头认识你一遍。
+
+长期记忆让它在你**主动同意**之后，把你说过的关键事实留在你自己的电脑上——家人去年查出什么病、你在这段关系里第几年了、你上次说最撑不住的是哪一刻。
+
+三条硬约束，写在代码里，不是承诺：
+
+- **只写本地**。文件落在你自己电脑的 `<HOME>/.xiangtupeibanshi/memory/`，不上传云端、不进这个仓库。
+- **先问再写**。第一次一定是你同意才建；危机安全要点要单独同意，默认不建。**问完就止**，不追问。
+- **控制权在你**。随时可以查看、暂停、撤销、清空。你不来，它发不出去。
+
+它不记你的全部。它只记你说过、且你说得出口的那部分。
+
+### 🔍 人物档案与判断：给一句站得住的判断，而不是「我理解你」
+
+你讲起家里那个人时，它不只说「听起来很不容易」。它会把你已经给的东西——你说过的称呼、你的评价、你提过的具体事件、甚至你替那个人贴的标签——摊开来看，然后给一个**有依据、有把握度、有改口条件**的判断。
+
+怎么给：
+
+- 认你的感受，不加码，也不替那个人找理由
+- 报依据——这句判断是从你说的哪几件来的
+- 标推测、给把握度，不把推测说成定论
+- 给**可验证的改口条件**——什么情况发生了，它会改口
+- 不诊断、不贴标签、不替你做决定；你喊停，就立刻停
+
 ## 适合谁
 
 - 经历过家庭伤害，想被安静倾听的人
@@ -50,6 +76,20 @@
 如果你有自伤、自杀、暴力风险，请立即联系当地紧急服务或可信赖的人。
 如在中国大陆，可拨打全国统一心理援助热线 **12356**；紧急情况请拨打 **110 / 120**。
 热线信息以 `references/热线与资源速查.md` 为准（核验日期 2026-09-18）。
+
+### 📚 知识库结构：122 张书卡，每张卡的每条事实都有唯一出处
+
+122 张书籍档案卡不是随手记的笔记，是**被脚本校验、在对话里被引用**的结构化数据。
+
+```
+书架（19 种，单值归属）      ← 读者的书单：你按书单逛
+  ×
+板块（12 种，正交维度）     ← 议题聚类：你按问题找
+
+每张卡另有 7 类自由标注：主题 / 方法 / 流派 / 类型 / 概念 / 人物 / 典籍
+```
+
+三份 `docs/` 事实源锁住它：**分类双轴**（`docs/taxonomy.md`）、**卡片骨架**（`docs/card-schema.md`，13 个小节顺序固定）、**标签命名空间**（`docs/tag-vocabulary.md`，4 个受控维度 ＋ 7 类自由标注）。
 
 ## 材料补充说明
 
@@ -124,8 +164,11 @@ xiangtupeibanshi/
 │   ├── ISSUE_TEMPLATE/         # Bug / Feature / Content / Review
 │   ├── PULL_REQUEST_TEMPLATE.md
 │   └── workflows/validate_skill.yml
-├── docs/
-│   └── manifest.yaml           # 内容计数唯一事实源
+├── docs/                       # 事实源：分类双轴、卡片骨架、标签命名空间、内容计数
+│   ├── manifest.yaml           # 内容计数唯一事实源
+│   ├── taxonomy.md             # 分类双轴（书架 19 × 板块 12）与例外
+│   ├── card-schema.md          # 卡片骨架（13 小节）与自由带
+│   └── tag-vocabulary.md       # 标签命名空间（4 受控维度 ＋ 7 类自由标注）
 ├── scripts/
 │   ├── validate_skill.py       # 23 类内容校验
 │   ├── clean_bold.py           # 加粗格式污染清洗
@@ -154,14 +197,14 @@ xiangtupeibanshi/
 │   ├── 70-关系伤害分析.md
 │   ├── 71-关系冲突5场景.md
 │   └── 99-测试模式.md
-├── examples/                   # 4 个实际对话示例
+├── examples/                   # 5 个实际对话示例
 ├── references/                 # 10 篇参考文档
 │   ├── 热线与资源速查.md        # 热线唯一权威源（含核验日期与复核周期）
 │   ├── platform-install.md     # 各平台安装指南
 │   └── ...
 ├── documentation/              # 5 篇开发者文档
 └── _books/                     # 122 张书籍档案卡
-    └── _sources/               # 12 个原始素材（PubMed 批次）
+    └── _sources/               # 18 个原始素材（PubMed 批次 ＋ 原文核验底稿）
 ```
 
 ## 贡献
@@ -202,6 +245,32 @@ Rooted in homeland memory, dialect warmth, natural imagery, and daily companions
 - Does not encourage AI dependency, nor ask for your privacy
 - Does not force trauma recall, nor judge your family or choices
 
+### 🧠 Long-Term Memory: You Decide Whether to Remember
+
+What you said in one conversation is gone when it ends. Next time, it has to get to know you all over again.
+
+Long-term memory lets it keep the key facts you have spoken — after **you actively agree** — on your own computer: a family member's diagnosis last year, how many years into this relationship you are, which moment you said was the hardest to bear.
+
+Three hard constraints, written in code, not promises:
+
+- **Local only.** The file lives at `<HOME>/.xiangtupeibanshi/memory/` on your own machine. It never goes to a cloud service and never enters this repository.
+- **Asked before written.** The first profile is built only after you say yes; crisis safety notes need separate consent and are not created by default. **One question, then it stops** — it does not follow up.
+- **You hold the control.** View, pause, undo, or erase it at any time. If you don't come back, it cannot reach you.
+
+It does not remember all of you. Only what you said, and only what you could say out loud.
+
+### 🔍 Person Profile & Judgment: A Judgment That Stands Up
+
+When you talk about someone at home, it does more than say "that sounds hard." It lays out what you have already given it — how you name that person, what you think of them, the specific things that happened — and then offers **one judgment with its basis, its confidence, and its conditions for changing its mind**.
+
+How it does that:
+
+- Accepts your feelings without inflating them, and does not make excuses for that person
+- Names its basis — which of your statements this judgment comes from
+- Marks it as inference, states confidence, and never turns inference into verdict
+- Gives **verifiable conditions for changing its mind** — what would have to happen for it to revise
+- Does not diagnose, does not label, does not decide for you; the moment you say stop, it stops
+
 ## Who It's For
 
 - Those who have experienced family harm and want to be quietly heard
@@ -221,6 +290,21 @@ This project follows trauma-informed principles:
 - Identifies crises and suggests real-world help
 - Privacy-first: does not collect unnecessary personal information
 - Long-term memory lives in one file on your own machine (`<HOME>/.xiangtupeibanshi/memory/`): nothing is written until you say yes, nothing goes to a cloud memory service or into this repository, and you can view, pause, undo, or erase it at any time (see `guides/02-长期记忆.md`)
+
+### 📚 Knowledge Base Structure: 122 Cards, Every Fact With One Authoritative Source
+
+The 122 book profile cards are not loose notes. They are structured data — validated by script and cited in conversation.
+
+```
+Bookshelves (19, one value per card)   ← browsing: read by shelf
+  ×
+Domains (12, orthogonal dimensions)    ← retrieval: search by topic
+
+Plus 7 free-annotation namespaces per card:
+topic / method / school / genre / concept / person / classic
+```
+
+Three `docs/` sources hold it in place: **the two classification axes** (`docs/taxonomy.md`), **the card skeleton** (`docs/card-schema.md`, 13 sections in fixed order), and **the tag namespaces** (`docs/tag-vocabulary.md`, 4 controlled dimensions ＋ 7 free-annotation types).
 
 ## Important Disclaimer
 
@@ -295,8 +379,11 @@ xiangtupeibanshi/
 │   ├── ISSUE_TEMPLATE/         # Bug / Feature / Content / Review
 │   ├── PULL_REQUEST_TEMPLATE.md
 │   └── workflows/validate_skill.yml
-├── docs/
-│   └── manifest.yaml           # Single source of truth for content counts
+├── docs/                       # Sources of truth: classification, card skeleton, tags, counts
+│   ├── manifest.yaml           # Single source of truth for content counts
+│   ├── taxonomy.md             # Two classification axes (19 shelves × 12 domains) and exceptions
+│   ├── card-schema.md          # Card skeleton (13 sections) and the free band
+│   └── tag-vocabulary.md       # Tag namespaces (4 controlled ＋ 7 free)
 ├── scripts/
 │   ├── validate_skill.py       # 23 categories of content validation
 │   ├── clean_bold.py           # Bold-format pollution cleaner
@@ -325,14 +412,14 @@ xiangtupeibanshi/
 │   ├── 70-关系伤害分析.md / Relationship Harm Analysis
 │   ├── 71-关系冲突5场景.md / 5 Relationship Conflict Scenarios
 │   └── 99-测试模式.md / Test Mode
-├── examples/                   # 4 real conversation examples
+├── examples/                   # 5 real conversation examples
 ├── references/                 # 10 reference documents
 │   ├── 热线与资源速查.md        # Sole authoritative source for hotlines (with verification date and review cycle)
 │   ├── platform-install.md     # Platform installation guide
 │   └── ...
 ├── documentation/              # 5 developer documents
 └── _books/                     # 122 book profile cards
-    └── _sources/               # 12 raw source files (PubMed batches)
+    └── _sources/               # 18 raw source files (PubMed batches ＋ original-text verification drafts)
 ```
 
 ## Contributing
