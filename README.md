@@ -15,6 +15,9 @@
 - 一个创伤知情的对话引导工具
 - 一个用乡土意象帮助情绪安放的 Skill
 - 一个鼓励你寻求现实支持与专业帮助的转介者
+- 🧠 一个**你同意才记**关键事实的陪伴者——长期记忆
+- 🔍 一个给得出**有依据判断**的陪伴者，而不只说「我理解你」——人物档案与判断
+- 📚 一个背着 **122 张可核查书卡**的陪伴者，而不只说得好听——知识库结构
 
 ## 它不是什么
 
@@ -31,9 +34,11 @@
 
 三条硬约束，写在代码里，不是承诺：
 
-- **只写本地**。文件落在你自己电脑的 `<HOME>/.xiangtupeibanshi/memory/`，不上传云端、不进这个仓库。
-- **先问再写**。第一次一定是你同意才建；危机安全要点要单独同意，默认不建。**问完就止**，不追问。
-- **控制权在你**。随时可以查看、暂停、撤销、清空。你不来，它发不出去。
+| | 约束 | 具体 |
+|---|---|---|
+| 1 | 🔒 **只写本地** | 落在你自己电脑的 `<HOME>/.xiangtupeibanshi/memory/`，不上传云端、不进这个仓库 |
+| 2 | ✍️ **先问再写** | 第一次一定是你同意才建；危机安全要点单独同意、默认不建。**问完就止**，不追问 |
+| 3 | 🎛️ **控制权在你** | 随时查看、暂停、撤销、清空。你不来，它发不出去 |
 
 它不记你的全部。它只记你说过、且你说得出口的那部分。
 
@@ -43,11 +48,13 @@
 
 怎么给：
 
-- 认你的感受，不加码，也不替那个人找理由
-- 报依据——这句判断是从你说的哪几件来的
-- 标推测、给把握度，不把推测说成定论
-- 给**可验证的改口条件**——什么情况发生了，它会改口
-- 不诊断、不贴标签、不替你做决定；你喊停，就立刻停
+| 它会 | 怎么给 |
+|---|---|
+| 🤝 认你的感受 | 不加码，也不替那个人找理由 |
+| 📎 报依据 | 这句判断是从你说的哪几件来的 |
+| 🔬 标推测 | 给把握度，不把推测说成定论 |
+| 🔄 给改口条件 | **可验证的**：什么情况发生了，它会改口 |
+| 🚧 守住边界 | 不诊断、不贴标签、不替你做决定；你喊停就立刻停 |
 
 ## 适合谁
 
@@ -89,7 +96,13 @@
 每张卡另有 7 类自由标注：主题 / 方法 / 流派 / 类型 / 概念 / 人物 / 典籍
 ```
 
-三份 `docs/` 事实源锁住它：**分类双轴**（`docs/taxonomy.md`）、**卡片骨架**（`docs/card-schema.md`，13 个小节顺序固定）、**标签命名空间**（`docs/tag-vocabulary.md`，4 个受控维度 ＋ 7 类自由标注）。
+三份 `docs/` 事实源锁住它：
+
+| 事实源 | 管什么 |
+|---|---|
+| 🗂 `docs/taxonomy.md` | 分类双轴：书架 19 × 板块 12，含映射与例外 |
+| 📐 `docs/card-schema.md` | 卡片骨架：13 个小节顺序固定 ＋ 自由带 |
+| 🏷 `docs/tag-vocabulary.md` | 标签命名空间：4 个受控维度 ＋ 7 类自由标注 |
 
 ## 材料补充说明
 
@@ -253,9 +266,11 @@ Long-term memory lets it keep the key facts you have spoken — after **you acti
 
 Three hard constraints, written in code, not promises:
 
-- **Local only.** The file lives at `<HOME>/.xiangtupeibanshi/memory/` on your own machine. It never goes to a cloud service and never enters this repository.
-- **Asked before written.** The first profile is built only after you say yes; crisis safety notes need separate consent and are not created by default. **One question, then it stops** — it does not follow up.
-- **You hold the control.** View, pause, undo, or erase it at any time. If you don't come back, it cannot reach you.
+| | Constraint | In detail |
+|---|---|---|
+| 1 | 🔒 **Local only** | Lives at `<HOME>/.xiangtupeibanshi/memory/` on your own machine; never to a cloud service, never into this repository |
+| 2 | ✍️ **Asked before written** | The first profile is built only after you say yes; crisis safety notes need separate consent and are not created by default. **One question, then it stops** |
+| 3 | 🎛️ **You hold the control** | View, pause, undo, or erase at any time. If you don't come back, it cannot reach you |
 
 It does not remember all of you. Only what you said, and only what you could say out loud.
 
@@ -265,11 +280,13 @@ When you talk about someone at home, it does more than say "that sounds hard." I
 
 How it does that:
 
-- Accepts your feelings without inflating them, and does not make excuses for that person
-- Names its basis — which of your statements this judgment comes from
-- Marks it as inference, states confidence, and never turns inference into verdict
-- Gives **verifiable conditions for changing its mind** — what would have to happen for it to revise
-- Does not diagnose, does not label, does not decide for you; the moment you say stop, it stops
+| It does | How |
+|---|---|
+| 🤝 Accepts your feelings | Without inflating them, and without making excuses for that person |
+| 📎 Names its basis | Which of your statements this judgment comes from |
+| 🔬 Marks it as inference | States confidence, never turns inference into verdict |
+| 🔄 Gives conditions for revision | **Verifiable**: what would have to happen for it to change its mind |
+| 🚧 Holds the line | Does not diagnose, does not label, does not decide for you; the moment you say stop, it stops |
 
 ## Who It's For
 
@@ -304,7 +321,13 @@ Plus 7 free-annotation namespaces per card:
 topic / method / school / genre / concept / person / classic
 ```
 
-Three `docs/` sources hold it in place: **the two classification axes** (`docs/taxonomy.md`), **the card skeleton** (`docs/card-schema.md`, 13 sections in fixed order), and **the tag namespaces** (`docs/tag-vocabulary.md`, 4 controlled dimensions ＋ 7 free-annotation types).
+Three `docs/` sources hold it in place:
+
+| Source | What it governs |
+|---|---|
+| 🗂 `docs/taxonomy.md` | The two classification axes: 19 shelves × 12 domains, with mappings and exceptions |
+| 📐 `docs/card-schema.md` | The card skeleton: 13 sections in fixed order ＋ the free band |
+| 🏷 `docs/tag-vocabulary.md` | Tag namespaces: 4 controlled dimensions ＋ 7 free-annotation types |
 
 ## Important Disclaimer
 
