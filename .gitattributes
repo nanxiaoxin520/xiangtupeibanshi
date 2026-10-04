@@ -1,0 +1,121 @@
+# 行尾与二进制定义
+#
+# 为什么需要这个文件：本机 `core.autocrlf=true`，而库里没有 .gitattributes，
+# 于是 git 认为「文本文件入库时该转成 CRLF」。实测后果是 `_books/` 下 **123 张卡
+# 每次 `git status` 都报脏**，但逐个核过：工作区 SHA-256 与索引 blob **完全相同**、
+# `git diff --numstat` **为空** —— 纯假象，源于配置缺失而非内容改动。
+#
+# 处置原则：**声明现状，不改内容**。本文件按 2026-10-04 实测的行尾分布逐路径声明，
+# 全库 42 个 CRLF / 169 个 LF 的混存形态原样保留。统一行尾是另一件事
+# （会改 42 个文件的内容），不该与「消掉假象」混在一笔里做。
+#
+# 语法：`-text` = 不做任何转换，原样入库原样取出（用于已是目标形态的文件）；
+# `text eol=lf` / `text eol=crlf` = 明确指定该路径的入库形态。
+
+# ── 卡片：141 个 .md，绝大多数 LF ──
+# gitattributes 的模式里 `*` **会跨 `/` 匹配**（`_books/*.md` 同时命中
+# `_books/_sources/README.md`），且**最后一个命中的行胜出**。
+# 故这里不能用一条 `_books/*.md` 覆盖再逐个取反——实测那样会让
+# `_sources/` 下两个 CRLF 文件仍被判成 lf。
+# 正确写法：不跨目录的 `**` 形式各自成一条，精确声明放在通配之后。
+_books/**             text eol=lf
+_books/_sources/README.md          text eol=crlf
+_books/_sources/坛经-原文核验.md    text eol=crlf
+
+# ── 内核与配置：LF ──
+/SKILL.md             text eol=lf
+/README.md             text eol=lf
+/CLAUDE.md             text eol=crlf
+/CHANGELOG.md          text eol=crlf
+/CONTRIBUTING.md       text eol=crlf
+/FAQ.md                text eol=crlf
+/NOTICE.md             text eol=crlf
+/SECURITY.md           text eol=crlf
+/VERSION               text eol=lf
+/.gitignore            text eol=lf
+/INDEX.md              text eol=lf
+/CODE_OF_CONDUCT.md    text eol=lf
+
+# ── guides/：22 篇里 12 篇 CRLF、10 篇 LF，逐篇声明 ──
+guides/00-欢迎与定位.md          text eol=crlf
+guides/01-第一次对话.md          text eol=crlf
+guides/02-长期记忆.md            text eol=lf
+guides/10-情绪识别与命名.md      text eol=crlf
+guides/11-认知重构.md            text eol=lf
+guides/12-CBT核心技能.md         text eol=crlf
+guides/13-正念与接纳.md          text eol=crlf
+guides/20-内圈关系.md            text eol=lf
+guides/21-差序格局与家庭.md      text eol=crlf
+guides/22-中圈关系.md            text eol=lf
+guides/23-工作议题.md            text eol=lf
+guides/24-人物档案与判断.md      text eol=lf
+guides/30-自我探索.md            text eol=lf
+guides/31-意义议题.md            text eol=lf
+guides/40-危机识别.md            text eol=lf
+guides/41-资源连接.md            text eol=crlf
+guides/50-自我照护.md            text eol=crlf
+guides/60-中国心理学会7大原则.md text eol=lf
+guides/70-关系伤害分析.md        text eol=crlf
+guides/71-关系冲突5场景.md      text eol=crlf
+guides/99-测试模式.md            text eol=crlf
+guides/README.md               text eol=crlf
+
+# ── examples/：5 篇示例 ＋ README ──
+examples/01-情绪低落.md   text eol=crlf
+examples/02-关系探索.md   text eol=lf
+examples/03-危机时刻.md   text eol=crlf
+examples/04-关系伤害.md   text eol=crlf
+examples/05-安慰话术.md   text eol=crlf
+examples/README.md       text eol=crlf
+
+# ── references/ ──
+references/README.md          text eol=crlf
+references/platform-install.md text eol=crlf
+references/热线与资源速查.md   text eol=lf
+references/书籍使用规范.md     text eol=crlf
+references/书籍档案索引.md     text eol=crlf
+references/关系伤害分析SOP.md text eol=crlf
+references/中外文化对照.md     text eol=crlf
+references/治疗流派速查.md     text eol=crlf
+references/评估量表速查.md     text eol=crlf
+references/验证脚本说明.md     text eol=crlf
+references/版本介绍.md         text eol=lf
+
+# ── documentation/ ──
+documentation/README.md              text eol=crlf
+documentation/architecture.md        text eol=crlf
+documentation/knowledge-base.md       text eol=crlf
+documentation/permissions.md          text eol=lf
+documentation/relationship-harm-sop.md text eol=crlf
+
+# ── docs/ 事实源：全 LF ──
+docs/*.md        text eol=lf
+docs/*.yaml      text eol=lf
+
+# ── GitHub 模板与 CI ──
+.github/**            text eol=lf
+
+# ── 其余根级文档：LF（2026-10-04 实测）──
+# 注意：根级规则一律用**首斜杠** `/文件名` 锚定。这是实测踩出来的：
+#   · 无前缀 `README.md`  → 匹配**任意层级**同名文件，于是 `_books/_sources/README.md`
+#     被这条根级规则盖住、误判成 lf（实测 git check-attr 给 lf）；
+#   · `./README.md`       → 本机 git 2.52 **完全不匹配**（判 unspecified），不是锚定；
+#   · `/README.md`        → 只命中仓库根，正确。
+# 三者在隔离仓库里逐个试过，别再改回去。
+# 二进制通配 `*.pdf` 等则**故意**不加前缀（要对所有层级生效）。
+
+# ── documentation/ 补漏 ──
+documentation/flows.md text eol=lf
+
+# ── scripts/ 与 tests/：脚本必须 LF（跨平台执行），不改内容只声明 ──
+scripts/*.py      text eol=crlf
+tests/*.py        text eol=crlf
+
+# ── agents/openai.yaml：LF ──
+agents/*.yaml      text eol=lf
+
+# ── 二进制与锁文件：一律不做行尾转换 ──
+*.pdf   binary
+*.png   binary
+*.jpg   binary
+*.parquet binary
